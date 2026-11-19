@@ -3,6 +3,7 @@ import { Body, Label } from '@/components/ui/typography';
 import { TextField } from '@/features/auth/components/text-field';
 import { FormFooter } from '@/features/owner/components/form-parts';
 import { ImageField } from '@/features/owner/components/image-field';
+import { WhenRange } from '@/features/owner/components/when-range';
 import { useSavePromotion } from '@/features/owner/hooks';
 import {
   promotionFormSchema,
@@ -11,6 +12,7 @@ import {
   type PromotionFormValues,
 } from '@/features/owner/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
+import { defaultOfferWindow } from '@/lib/dates';
 import { useSurfaces } from '@/theme/surfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Info } from 'lucide-react-native';
@@ -28,6 +30,7 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
   const { colors } = useSurfaces();
   const save = useSavePromotion(promotion?.id);
   const [formError, setFormError] = useState<string | null>(null);
+  const opening = defaultOfferWindow();
   const form = useForm<PromotionFormValues>({
     resolver: zodResolver(promotionFormSchema),
     defaultValues: {
@@ -35,6 +38,8 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
       title: promotion?.title ?? '',
       description: promotion?.description ?? '',
       imageUrl: promotion?.imageUrl ?? '',
+      startsAt: promotion?.startsAt ?? opening.startsAt,
+      endsAt: promotion?.endsAt ?? opening.endsAt,
     },
   });
   const venueId = useWatch({ control: form.control, name: 'venueId' });
@@ -42,6 +47,10 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
 
   const onSubmit = form.handleSubmit(async (values) => {
     setFormError(null);
+    if (!promotion && new Date(values.endsAt).getTime() <= Date.now()) {
+      setFormError('This window has already finished.');
+      return;
+    }
     try {
       onSaved(await save.mutateAsync(values));
     } catch (error) {
@@ -130,10 +139,31 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
             />
           )}
         />
+        <Controller
+          control={form.control}
+          name="startsAt"
+          render={({ field: startField }) => (
+            <Controller
+              control={form.control}
+              name="endsAt"
+              render={({ field: endField, fieldState }) => (
+                <WhenRange
+                  startsAt={startField.value}
+                  endsAt={endField.value}
+                  error={fieldState.error?.message}
+                  onChange={({ startsAt, endsAt }) => {
+                    startField.onChange(startsAt);
+                    endField.onChange(endsAt);
+                  }}
+                />
+              )}
+            />
+          )}
+        />
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <Info color={colors.mute} size={16} strokeWidth={1.8} style={{ marginTop: 1 }} />
           <Body size={13} color={colors.mute} style={{ flex: 1 }}>
-            {`Guests see this on ${venueName}’s page and in their Offers tab.`}
+            {`Guests see this on ${venueName}’s page and in Offers only while this window is open.`}
           </Body>
         </View>
       </ScrollView>

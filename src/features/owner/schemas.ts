@@ -129,6 +129,8 @@ export const ownerPromotionSchema = z.object({
   title: z.string(),
   description: z.string().nullish(),
   imageUrl: z.string().nullish(),
+  startsAt: z.string(),
+  endsAt: z.string(),
   venue: z
     .object({
       id: z.string(),
@@ -141,11 +143,18 @@ export const ownerPromotionListSchema = z.array(ownerPromotionSchema);
 
 export type OwnerPromotion = z.infer<typeof ownerPromotionSchema>;
 
-export const promotionFormSchema = z.object({
-  venueId: z.string().min(1, 'Choose a place'),
-  title: z.string().trim().min(2, 'Use at least 2 characters'),
-  description: z.string(),
-  imageUrl: z.string(),
-});
+export const promotionFormSchema = z
+  .object({
+    venueId: z.string().min(1, 'Choose a place'),
+    title: z.string().trim().min(2, 'Use at least 2 characters'),
+    description: z.string(),
+    imageUrl: z.string(),
+    startsAt: z.string().min(1, 'Choose when it starts'),
+    endsAt: z.string().min(1, 'Choose when it ends'),
+  })
+  .refine((value) => new Date(value.endsAt).getTime() > new Date(value.startsAt).getTime(), {
+    message: 'The end has to be after the start.',
+    path: ['endsAt'],
+  });
 
 export type PromotionFormValues = z.infer<typeof promotionFormSchema>;

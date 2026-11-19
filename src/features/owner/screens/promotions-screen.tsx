@@ -5,14 +5,15 @@ import { ScreenState } from '@/components/screen-state';
 import { ActionMenu } from '@/components/ui/action-menu';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { DashRule, Doodle, Tape } from '@/components/ui/decor';
+import { DashRule, Doodle, Stamp, Tape } from '@/components/ui/decor';
 import { ListEnter, ScreenEnter } from '@/components/ui/enter';
 import { useTabBarInset } from '@/components/ui/tab-bar';
-import { Body, H1, H2, Hand, Label, Sub } from '@/components/ui/typography';
+import { Body, H1, H2, Hand, Label, Mono, Sub } from '@/components/ui/typography';
 import { AddTile } from '@/features/owner/components/add-tile';
 import { useDeletePromotion, useMyPromotions } from '@/features/owner/hooks';
 import type { OwnerPromotion } from '@/features/owner/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
+import { offerTiming, offerWindowLine } from '@/lib/dates';
 import { useSurfaces } from '@/theme/surfaces';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -61,7 +62,7 @@ export function PromotionsScreen() {
             <H1 size={28} accessibilityRole="header">
               Offers
             </H1>
-            <Sub>Short notes guests see on your place’s page.</Sub>
+            <Sub>Each shop’s offers show only between the start and end you set.</Sub>
             {error ? (
               <Body size={14} color={colors.danger} style={{ marginTop: 6 }}>
                 {error}
@@ -149,11 +150,30 @@ function PromotionRow({
   onDelete: () => void;
 }) {
   const { isJournal } = useSurfaces();
+  const timing = offerTiming(promotion.startsAt, promotion.endsAt);
+  const stamp = {
+    upcoming: { label: 'Upcoming', tone: 'wait' as const },
+    live: { label: 'On now', tone: 'ok' as const },
+    ended: { label: 'Ended', tone: 'used' as const },
+  }[timing];
   return (
     <View>
-      <Card onPress={onEdit} accessibilityLabel={`${promotion.title}. Edit offer`}>
-        <View style={{ paddingHorizontal: 16, paddingVertical: 10, paddingRight: 64, minHeight: 56, justifyContent: 'center' }}>
-          <Label numberOfLines={1}>{promotion.venue?.name ?? 'Your place'}</Label>
+      <Card onPress={onEdit} accessibilityLabel={`${promotion.title}. ${stamp.label}. Edit offer`}>
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            paddingHorizontal: 16,
+            paddingVertical: 10,
+            paddingRight: 64,
+            minHeight: 56,
+          }}>
+          <Label numberOfLines={1} style={{ flex: 1 }}>
+            {promotion.venue?.name ?? 'Your place'}
+          </Label>
+          <Stamp label={stamp.label} tone={stamp.tone} rotate={-3} />
         </View>
         <DashRule width={isJournal ? 1.5 : 1} />
         {promotion.imageUrl ? (
@@ -168,6 +188,7 @@ function PromotionRow({
               {promotion.description}
             </Body>
           ) : null}
+          <Mono size={12}>{offerWindowLine(promotion.startsAt, promotion.endsAt)}</Mono>
         </View>
       </Card>
       <ActionMenu

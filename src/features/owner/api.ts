@@ -119,6 +119,8 @@ function promotionBody(values: PromotionFormValues) {
     title: values.title.trim(),
     description: values.description.trim(),
     imageUrl: values.imageUrl,
+    startsAt: values.startsAt,
+    endsAt: values.endsAt,
   };
 }
 

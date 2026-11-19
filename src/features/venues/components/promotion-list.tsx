@@ -3,6 +3,7 @@ import { SkeletonBlock } from '@/components/skeleton';
 import { Card } from '@/components/ui/card';
 import { Body, Sub } from '@/components/ui/typography';
 import type { Promotion } from '@/features/venues/schemas';
+import { untilLine } from '@/lib/dates';
 import { useSurfaces } from '@/theme/surfaces';
 import { Pressable, View } from 'react-native';
 
@@ -46,6 +47,7 @@ export function PromotionList({
               {promotion.title}
             </Body>
             {promotion.description ? <Sub size={14}>{promotion.description}</Sub> : null}
+            <Sub size={13}>{untilLine(promotion.endsAt)}</Sub>
           </View>
         </Card>
       ))}

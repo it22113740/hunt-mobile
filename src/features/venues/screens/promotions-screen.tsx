@@ -10,6 +10,7 @@ import { useTabBarInset } from '@/components/ui/tab-bar';
 import { Body, H2, Hand, Label, Mono, Sub } from '@/components/ui/typography';
 import { usePromotionFeed, useVenue } from '@/features/venues/hooks';
 import type { PromotionFeedItem } from '@/features/venues/schemas';
+import { untilLine } from '@/lib/dates';
 import { useSurfaces } from '@/theme/surfaces';
 import { useRouter } from 'expo-router';
 import { FlatList, Pressable, View } from 'react-native';
@@ -47,7 +48,7 @@ export function CustomerPromotionsScreen() {
         ListHeaderComponent={
           <View style={{ gap: 10, marginBottom: 32 }}>
             <AppHeader title="Offers" />
-            <Sub>What places around you are running right now.</Sub>
+            <Sub>Offers each shop is running right now.</Sub>
           </View>
         }
         renderItem={({ item, index }) => (
@@ -132,6 +133,7 @@ function PromotionCard({ promotion, onPress }: { promotion: PromotionFeedItem; o
               {promotion.description}
             </Body>
           ) : null}
+          <Mono size={12}>{untilLine(promotion.endsAt)}</Mono>
         </View>
         <View
           style={{

@@ -13,7 +13,7 @@ import { Body, H1, H2, Hand, Label, MarkedHeading } from '@/components/ui/typogr
 import { VenueCard } from '@/features/venues/components/venue-card';
 import { VenueMap } from '@/features/venues/components/venue-map';
 import { useCityName, useExploreVenues, usePromotionFeed, useUserLocation } from '@/features/venues/hooks';
-import { shortDate } from '@/lib/dates';
+import { shortDate, untilLine } from '@/lib/dates';
 import { useAuthStore } from '@/stores/auth';
 import { useSurfaces } from '@/theme/surfaces';
 import { useRouter } from 'expo-router';
@@ -189,7 +189,7 @@ export function ExploreScreen() {
                   backgroundColor: colors.blush,
                 }}>
                 {isWhite ? <Tape ash rotate={5} style={{ top: -10, right: 22 }} /> : null}
-                <Label color={colors.accentDeep}>Tonight</Label>
+                <Label color={colors.accentDeep}>{untilLine(offer.endsAt)}</Label>
                 <Body size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={2}>
                   {`${offer.title} at ${offer.venue.name}`}
                 </Body>

@@ -37,6 +37,8 @@ export const promotionSchema = z.object({
   title: z.string(),
   description: z.string().nullish(),
   imageUrl: z.string().nullish(),
+  startsAt: z.string(),
+  endsAt: z.string(),
 });
 
 export const promotionListSchema = z.array(promotionSchema);
