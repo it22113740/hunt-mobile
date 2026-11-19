@@ -5,7 +5,6 @@ import { TextField } from '@/features/auth/components/text-field';
 import { useRegister } from '@/features/auth/hooks';
 import { registerSchema, type RegisterValues } from '@/features/auth/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
-import { useAuthStore } from '@/stores/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
@@ -16,7 +15,6 @@ export function RegisterScreen() {
   const params = useLocalSearchParams<{ role?: string | string[] }>();
   const roleParam = Array.isArray(params.role) ? params.role[0] : params.role;
   const preset = roleParam === 'OWNER' ? 'OWNER' : 'USER';
-  const establishSession = useAuthStore((state) => state.establishSession);
   const register = useRegister();
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -26,8 +24,7 @@ export function RegisterScreen() {
       role: preset,
       username: '',
       email: '',
-      gmail: '',
-      address: '',
+      phone: '',
       password: '',
     },
   });
@@ -37,8 +34,8 @@ export function RegisterScreen() {
     setFormError(null);
     setSubmitting(true);
     try {
-      const session = await register.mutateAsync(values);
-      await establishSession(session.accessToken);
+      const pending = await register.mutateAsync(values);
+      router.push({ pathname: '/(auth)/verify-email', params: { email: pending.email } });
     } catch (error) {
       setFormError(getApiErrorMessage(error, 'Could not create your account.'));
     } finally {
@@ -61,7 +58,7 @@ export function RegisterScreen() {
       footer={
         <>
           <FormError message={formError} />
-          <PrimaryButton label="Create account" onPress={onSubmit} loading={submitting} />
+          <PrimaryButton label="Send code" onPress={onSubmit} loading={submitting} />
           <TextLink
             label="Already have an account?"
             action="Sign in"
@@ -70,76 +67,55 @@ export function RegisterScreen() {
         </>
       }>
       <RoleSwitch value={role} onChange={(next) => form.setValue('role', next)} />
-      {role === 'USER' ? (
-        <>
-          <Controller
-            control={form.control}
-            name="username"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Username"
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                autoCapitalize="none"
-                autoComplete="username"
-                placeholder="johndoe"
-              />
-            )}
+      <Controller
+        control={form.control}
+        name="username"
+        render={({ field, fieldState }) => (
+          <TextField
+            label="Username"
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={fieldState.error?.message}
+            autoCapitalize="none"
+            autoComplete="username"
+            placeholder="johndoe"
           />
-          <Controller
-            control={form.control}
-            name="email"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Email"
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                keyboardType="email-address"
-                autoComplete="email"
-                placeholder="you@email.com"
-              />
-            )}
+        )}
+      />
+      <Controller
+        control={form.control}
+        name="email"
+        render={({ field, fieldState }) => (
+          <TextField
+            label="Email"
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={fieldState.error?.message}
+            keyboardType="email-address"
+            autoComplete="email"
+            placeholder="you@email.com"
           />
-        </>
-      ) : (
-        <>
-          <Controller
-            control={form.control}
-            name="gmail"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Email"
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                keyboardType="email-address"
-                autoComplete="email"
-                placeholder="owner@email.com"
-              />
-            )}
-          />
-          <Controller
-            control={form.control}
-            name="address"
-            render={({ field, fieldState }) => (
-              <TextField
-                label="Business address"
-                value={field.value}
-                onChangeText={field.onChange}
-                onBlur={field.onBlur}
-                error={fieldState.error?.message}
-                autoCapitalize="words"
-                placeholder="123 Main St"
-              />
-            )}
-          />
-        </>
-      )}
+        )}
+      />
+      {role === 'OWNER' ? (
+        <Controller
+          control={form.control}
+          name="phone"
+          render={({ field, fieldState }) => (
+            <TextField
+              label="Mobile number"
+              value={field.value}
+              onChangeText={field.onChange}
+              onBlur={field.onBlur}
+              error={fieldState.error?.message}
+              keyboardType="phone-pad"
+              placeholder="+94 77 123 4567"
+            />
+          )}
+        />
+      ) : null}
       <Controller
         control={form.control}
         name="password"

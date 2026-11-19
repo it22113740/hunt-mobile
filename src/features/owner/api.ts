@@ -32,6 +32,9 @@ function venueBody(values: VenueFormValues) {
     category: values.category,
     description: values.description.trim(),
     ...(values.imageUrl ? { imageUrl: values.imageUrl } : {}),
+    instagramUrl: values.instagramUrl.trim(),
+    facebookUrl: values.facebookUrl.trim(),
+    tiktokUrl: values.tiktokUrl.trim(),
   };
 }
 

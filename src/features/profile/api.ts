@@ -17,8 +17,9 @@ export async function updateProfile(role: Profile['role'], values: ProfileFormVa
     role === 'OWNER'
       ? {
           email: values.email.trim(),
+          username: values.username.trim(),
           gmail: values.gmail.trim(),
-          address: values.address.trim(),
+          phone: values.phone.trim(),
         }
       : {
           email: values.email.trim(),

@@ -51,6 +51,9 @@ export function VenueForm({ venue, origin, onSaved }: VenueFormProps) {
       imageUrl: venue?.imageUrl ?? '',
       category: known ?? venue?.category ?? 'Restaurant',
       description: venue?.description ?? '',
+      instagramUrl: venue?.instagramUrl ?? '',
+      facebookUrl: venue?.facebookUrl ?? '',
+      tiktokUrl: venue?.tiktokUrl ?? '',
     },
   });
 
@@ -142,6 +145,49 @@ export function VenueForm({ venue, origin, onSaved }: VenueFormProps) {
                 placeholder="Cold beer, a sea breeze and a quiz every Thursday."
                 autoCapitalize="sentences"
                 multiline
+              />
+            )}
+          />
+          <Label>Socials</Label>
+          <Controller
+            control={form.control}
+            name="tiktokUrl"
+            render={({ field }) => (
+              <TextField
+                label="TikTok"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                autoCapitalize="none"
+                placeholder="@yourplace"
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="instagramUrl"
+            render={({ field }) => (
+              <TextField
+                label="Instagram"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                autoCapitalize="none"
+                placeholder="@yourplace"
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="facebookUrl"
+            render={({ field }) => (
+              <TextField
+                label="Facebook"
+                value={field.value}
+                onChangeText={field.onChange}
+                onBlur={field.onBlur}
+                autoCapitalize="none"
+                placeholder="facebook.com/yourplace"
               />
             )}
           />

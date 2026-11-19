@@ -25,7 +25,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
       username: profile.username ?? '',
       email: profile.email,
       gmail: profile.ownerProfile?.gmail ?? '',
-      address: profile.ownerProfile?.address ?? '',
+      phone: profile.ownerProfile?.phone ?? '',
     },
   });
 
@@ -42,22 +42,21 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   return (
     <View style={{ gap: 18 }}>
-      {profile.role === 'USER' ? (
-        <Controller
-          control={form.control}
-          name="username"
-          render={({ field, fieldState }) => (
-            <TextField
-              label="Username"
-              value={field.value}
-              onChangeText={field.onChange}
-              onBlur={field.onBlur}
-              error={fieldState.error?.message}
-              autoComplete="username"
-            />
-          )}
-        />
-      ) : null}
+      <Controller
+        control={form.control}
+        name="username"
+        render={({ field, fieldState }) => (
+          <TextField
+            label="Username"
+            value={field.value}
+            onChangeText={field.onChange}
+            onBlur={field.onBlur}
+            error={fieldState.error?.message}
+            autoCapitalize="none"
+            autoComplete="username"
+          />
+        )}
+      />
       <Controller
         control={form.control}
         name="email"
@@ -92,15 +91,16 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           />
           <Controller
             control={form.control}
-            name="address"
+            name="phone"
             render={({ field, fieldState }) => (
               <TextField
-                label="Business address"
+                label="Mobile number"
                 value={field.value}
                 onChangeText={field.onChange}
                 onBlur={field.onBlur}
                 error={fieldState.error?.message}
-                autoCapitalize="words"
+                keyboardType="phone-pad"
+                placeholder="+94 77 123 4567"
               />
             )}
           />

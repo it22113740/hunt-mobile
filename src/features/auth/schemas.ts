@@ -7,16 +7,31 @@ export const loginSchema = z.object({
 
 export type LoginValues = z.infer<typeof loginSchema>;
 
+const phonePattern = /^[+0-9][0-9\s()-]{7,19}$/;
+
 export const registerSchema = z
   .object({
     role: z.enum(['USER', 'OWNER']),
     username: z.string(),
     email: z.string(),
-    gmail: z.string(),
-    address: z.string(),
+    phone: z.string(),
     password: z.string(),
   })
   .superRefine((value, ctx) => {
+    if (value.username.trim().length < 2) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['username'],
+        message: 'Use at least 2 characters',
+      });
+    }
+    if (!z.email().safeParse(value.email).success) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['email'],
+        message: 'Enter a valid email',
+      });
+    }
     if (value.password.length < 8) {
       ctx.addIssue({
         code: 'custom',
@@ -24,37 +39,11 @@ export const registerSchema = z
         message: 'Use at least 8 characters',
       });
     }
-
-    if (value.role === 'USER') {
-      if (value.username.trim().length < 2) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['username'],
-          message: 'Use at least 2 characters',
-        });
-      }
-      if (!z.email().safeParse(value.email).success) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['email'],
-          message: 'Enter a valid email',
-        });
-      }
-      return;
-    }
-
-    if (!z.email().safeParse(value.gmail).success) {
+    if (value.role === 'OWNER' && !phonePattern.test(value.phone.trim())) {
       ctx.addIssue({
         code: 'custom',
-        path: ['gmail'],
-        message: 'Enter a valid email',
-      });
-    }
-    if (value.address.trim().length < 1) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['address'],
-        message: 'Enter the business address',
+        path: ['phone'],
+        message: 'Enter a valid mobile number',
       });
     }
   });
@@ -94,3 +83,15 @@ export const authSessionSchema = z.object({
 export const messageSchema = z.object({
   message: z.string(),
 });
+
+export const signupPendingSchema = z.object({
+  email: z.string(),
+  message: z.string(),
+});
+
+export const verifyEmailSchema = z.object({
+  email: z.email('Enter a valid email'),
+  otp: z.string().regex(/^\d{6}$/, 'Enter the 6-digit code'),
+});
+
+export type VerifyEmailValues = z.infer<typeof verifyEmailSchema>;

@@ -10,7 +10,8 @@ export const profileSchema = z.object({
   ownerProfile: z
     .object({
       gmail: z.string(),
-      address: z.string(),
+      address: z.string().nullish(),
+      phone: z.string().nullish(),
       onboardingStep: z.number().optional(),
     })
     .nullable()
@@ -30,14 +31,14 @@ export function profileFormSchema(role: Profile['role']) {
       username: z.string(),
       email: z.string(),
       gmail: z.string(),
-      address: z.string(),
+      phone: z.string(),
     })
     .superRefine((value, ctx) => {
       if (!z.email().safeParse(value.email).success) {
         ctx.addIssue({ code: 'custom', path: ['email'], message: 'Enter a valid email' });
       }
 
-      if (role === 'USER' && value.username.trim().length < 2) {
+      if (value.username.trim().length < 2) {
         ctx.addIssue({
           code: 'custom',
           path: ['username'],
@@ -53,11 +54,11 @@ export function profileFormSchema(role: Profile['role']) {
             message: 'Enter a valid email',
           });
         }
-        if (value.address.trim().length < 1) {
+        if (!/^[+0-9][0-9\s()-]{7,19}$/.test(value.phone.trim())) {
           ctx.addIssue({
             code: 'custom',
-            path: ['address'],
-            message: 'Enter the business address',
+            path: ['phone'],
+            message: 'Enter a valid mobile number',
           });
         }
       }

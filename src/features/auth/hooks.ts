@@ -1,4 +1,12 @@
-import { changePassword, login, registerAccount, requestPasswordReset, resetPassword } from '@/features/auth/api';
+import {
+  changePassword,
+  login,
+  registerAccount,
+  requestPasswordReset,
+  resendSignup,
+  resetPassword,
+  verifySignup,
+} from '@/features/auth/api';
 import { useMutation } from '@tanstack/react-query';
 
 export function useLogin() {
@@ -7,6 +15,14 @@ export function useLogin() {
 
 export function useRegister() {
   return useMutation({ mutationFn: registerAccount });
+}
+
+export function useVerifySignup() {
+  return useMutation({ mutationFn: verifySignup });
+}
+
+export function useResendSignup() {
+  return useMutation({ mutationFn: resendSignup });
 }
 
 export function useForgotPassword() {

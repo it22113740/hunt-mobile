@@ -10,6 +10,9 @@ export const ownerVenueSchema = z.object({
   description: z.string().nullish(),
   category: z.string().nullish(),
   imageUrl: z.string().nullish(),
+  instagramUrl: z.string().nullish(),
+  facebookUrl: z.string().nullish(),
+  tiktokUrl: z.string().nullish(),
   pointsPerPhoto: z.number(),
   pointsPerVideo: z.number(),
 });
@@ -29,6 +32,9 @@ export const venueFormSchema = z.object({
   imageUrl: z.string(),
   category: z.string().min(1, 'Choose a category'),
   description: z.string(),
+  instagramUrl: z.string(),
+  facebookUrl: z.string(),
+  tiktokUrl: z.string(),
 });
 
 export type VenueFormValues = z.infer<typeof venueFormSchema>;

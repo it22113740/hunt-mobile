@@ -5,6 +5,7 @@ import { SkeletonBlock } from '@/components/skeleton';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DashRule, Doodle, Placeholder, Stamp } from '@/components/ui/decor';
+import { StoreSocials } from '@/components/ui/social-logos';
 import { ScreenEnter } from '@/components/ui/enter';
 import { CameraIcon, PinIcon } from '@/components/ui/hunt-icons';
 import { BackButton } from '@/components/ui/icon-button';
@@ -113,15 +114,16 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
 
         <View style={{ paddingHorizontal: 20, paddingTop: 24, gap: 28 }}>
           <View style={{ gap: 8 }}>
-            {isWhite ? (
-              <>
-                <Doodle kind="sparkle" size={20} accent style={{ right: 20, top: 6 }} />
-                <Doodle kind="sparkle" size={11} style={{ right: 46, top: 34 }} />
-              </>
-            ) : null}
-            <H1 size={36} style={{ paddingRight: isWhite ? 50 : 0 }}>
-              {venue.name}
-            </H1>
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+              <H1 size={36} style={{ flex: 1 }}>
+                {venue.name}
+              </H1>
+              <StoreSocials
+                tiktokUrl={venue.tiktokUrl}
+                instagramUrl={venue.instagramUrl}
+                facebookUrl={venue.facebookUrl}
+              />
+            </View>
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 6 }}>
               <View style={{ paddingTop: 2 }}>
                 <PinIcon color={colors.mute} size={16} />
@@ -206,7 +208,7 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
           borderTopWidth: strong.width,
           borderTopColor: strong.color,
         }}>
-        <Button label="Submit a visit" leftIcon={<CameraIcon color={colors.onAccent} size={20} />} onPress={capture} />
+        <Button label="Submit a content" leftIcon={<CameraIcon color={colors.onAccent} size={20} />} onPress={capture} />
         <Body size={13} color={colors.mute} style={{ textAlign: 'center', marginTop: 8 }}>
           Send shots for this place, even if you’re not there.
         </Body>
