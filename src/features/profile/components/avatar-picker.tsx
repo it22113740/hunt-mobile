@@ -23,18 +23,18 @@ export function AvatarPicker({ profile }: AvatarPickerProps) {
 
   const onPick = async () => {
     setError(null);
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
-      setError('Allow photo access to update your picture.');
+    let result: ImagePicker.ImagePickerResult;
+    try {
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+    } catch {
+      setError('Could not open the photo picker.');
       return;
     }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
     if (result.canceled || !result.assets[0]) return;
 
     const asset = result.assets[0];

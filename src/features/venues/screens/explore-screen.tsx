@@ -191,7 +191,7 @@ export function ExploreScreen() {
                 {isWhite ? <Tape ash rotate={5} style={{ top: -10, right: 22 }} /> : null}
                 <Label color={colors.accentDeep}>{untilLine(offer.endsAt)}</Label>
                 <Body size={15} weight="semibold" style={{ flex: 1 }} numberOfLines={2}>
-                  {`${offer.title} at ${offer.venue.name}`}
+                  {`${offer.discountPercent != null ? `${offer.discountPercent}% off · ` : ''}${offer.title} at ${offer.venue.name}`}
                 </Body>
                 <ChevronRight color={colors.ink} size={18} strokeWidth={1.8} />
               </PressScale>

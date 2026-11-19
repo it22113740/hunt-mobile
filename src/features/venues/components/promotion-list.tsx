@@ -39,7 +39,7 @@ export function PromotionList({
         <Card key={promotion.id} tone="soft">
           {promotion.imageUrl ? (
             <View style={{ borderBottomWidth: isJournal ? 1 : 0, borderBottomColor: colors.line }}>
-              <CachedImage source={{ uri: promotion.imageUrl }} style={{ height: 140, width: '100%' }} contentFit="cover" />
+              <CachedImage source={{ uri: promotion.imageUrl }} style={{ width: '100%', aspectRatio: 1 }} contentFit="cover" />
             </View>
           ) : null}
           <View style={{ paddingHorizontal: 16, paddingVertical: 14, gap: 4 }}>
@@ -47,7 +47,11 @@ export function PromotionList({
               {promotion.title}
             </Body>
             {promotion.description ? <Sub size={14}>{promotion.description}</Sub> : null}
-            <Sub size={13}>{untilLine(promotion.endsAt)}</Sub>
+            <Sub size={13}>
+              {promotion.discountPercent != null
+                ? `${promotion.discountPercent}% off · ${untilLine(promotion.endsAt)}`
+                : untilLine(promotion.endsAt)}
+            </Sub>
           </View>
         </Card>
       ))}

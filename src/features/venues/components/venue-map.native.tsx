@@ -13,8 +13,15 @@ type VenueMapProps = {
   height?: number;
 };
 
+function sketchName(venue?: Venue) {
+  if (!venue) return undefined;
+  return venue.offerPercent != null ? `${venue.offerPercent}% ${venue.name}` : venue.name;
+}
+
 function MapPreview({ venues, height = 210 }: VenueMapProps) {
-  return <SketchMap height={height} primary={venues[0]?.name} secondary={venues[1]?.name} />;
+  const featured = venues.find((venue) => venue.offerPercent != null) ?? venues[0];
+  const other = venues.find((venue) => venue.id !== featured?.id);
+  return <SketchMap height={height} primary={sketchName(featured)} secondary={sketchName(other)} />;
 }
 
 // Loaded lazily: MapLibre's native module is missing from Expo Go and throws on import.
@@ -29,7 +36,7 @@ export function VenueMap(props: VenueMapProps) {
   const height = props.height ?? 210;
 
   if (isExpoGo) {
-    return <SketchMap height={height} primary={props.venues[0]?.name} secondary={props.venues[1]?.name} />;
+    return <MapPreview {...props} height={height} />;
   }
   return (
     <Suspense fallback={<View style={{ height, backgroundColor: colors.mapBg }} />}>

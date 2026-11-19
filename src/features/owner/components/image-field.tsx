@@ -7,6 +7,7 @@ import { Body } from '@/components/ui/typography';
 import { uploadImage } from '@/features/owner/api';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { useSurfaces } from '@/theme/surfaces';
+import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
@@ -17,7 +18,29 @@ type ImageFieldProps = {
   label?: string;
   hint?: string;
   height?: number;
+  /** Crop to a square and save at this size, in pixels, on each side. The preview is square. */
+  squarePixels?: number;
 };
+
+async function toSquareJpeg(uri: string, width: number, height: number, pixels: number) {
+  const side = Math.min(width, height);
+  const actions =
+    side > 0
+      ? [
+          {
+            crop: {
+              originX: Math.round((width - side) / 2),
+              originY: Math.round((height - side) / 2),
+              width: side,
+              height: side,
+            },
+          },
+          { resize: { width: pixels, height: pixels } },
+        ]
+      : [{ resize: { width: pixels, height: pixels } }];
+  const result = await manipulateAsync(uri, actions, { compress: 0.85, format: SaveFormat.JPEG });
+  return result.uri;
+}
 
 export function ImageField({
   url,
@@ -25,6 +48,7 @@ export function ImageField({
   label = 'Add a cover photo',
   hint = 'Your front door works best. It’s what guests look for.',
   height = 170,
+  squarePixels,
 }: ImageFieldProps) {
   const { colors, surfaces } = useSurfaces();
   const [uploading, setUploading] = useState(false);
@@ -33,21 +57,30 @@ export function ImageField({
 
   const pick = async () => {
     setError(null);
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
+    let result: ImagePicker.ImagePickerResult;
+    try {
+      result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        quality: squarePixels ? 1 : 0.8,
+        allowsEditing: Boolean(squarePixels),
+        aspect: squarePixels ? [1, 1] : undefined,
+      });
+    } catch {
       hapticWarning();
-      setError('Allow photo access to add a picture.');
+      setError('Could not open the photo picker.');
       return;
     }
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
     const asset = result.assets?.[0];
     if (result.canceled || !asset) return;
     setUploading(true);
     try {
+      const uri = squarePixels
+        ? await toSquareJpeg(asset.uri, asset.width, asset.height, squarePixels)
+        : asset.uri;
       const mediaUrl = await uploadImage({
-        uri: asset.uri,
-        name: asset.fileName ?? 'photo.jpg',
-        type: asset.mimeType ?? 'image/jpeg',
+        uri,
+        name: squarePixels ? 'photo.jpg' : (asset.fileName ?? 'photo.jpg'),
+        type: squarePixels ? 'image/jpeg' : (asset.mimeType ?? 'image/jpeg'),
       });
       onChange(mediaUrl);
     } catch (uploadError) {
@@ -58,11 +91,13 @@ export function ImageField({
     }
   };
 
+  const frame = squarePixels ? { width: '100%' as const, aspectRatio: 1 } : { height };
+
   return (
     <View style={{ gap: 8 }}>
       <View>
         {url ? (
-          <View style={[surfaces.image, { height, borderRadius: 10, overflow: 'hidden' }]}>
+          <View style={[surfaces.image, frame, { borderRadius: 10, overflow: 'hidden' }]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="View photo"
@@ -98,7 +133,7 @@ export function ImageField({
             style={[
               surfaces.dashed,
               {
-                height,
+                ...frame,
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,

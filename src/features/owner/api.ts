@@ -121,6 +121,7 @@ function promotionBody(values: PromotionFormValues) {
     imageUrl: values.imageUrl,
     startsAt: values.startsAt,
     endsAt: values.endsAt,
+    discountPercent: values.discountPercent,
   };
 }
 

@@ -119,7 +119,7 @@ function PromotionCard({ promotion, onPress }: { promotion: PromotionFeedItem; o
         {promotion.imageUrl ? (
           <CachedImage
             source={{ uri: promotion.imageUrl }}
-            style={{ height: 160, width: '100%' }}
+            style={{ width: '100%', aspectRatio: 1 }}
             contentFit="cover"
             accessibilityLabel={promotion.title}
           />
@@ -133,7 +133,11 @@ function PromotionCard({ promotion, onPress }: { promotion: PromotionFeedItem; o
               {promotion.description}
             </Body>
           ) : null}
-          <Mono size={12}>{untilLine(promotion.endsAt)}</Mono>
+          <Mono size={12}>
+            {promotion.discountPercent != null
+              ? `${promotion.discountPercent}% off · ${untilLine(promotion.endsAt)}`
+              : untilLine(promotion.endsAt)}
+          </Mono>
         </View>
         <View
           style={{

@@ -115,10 +115,23 @@ function VenueMarker({
       lngLat={[venue.lng, venue.lat]}
       anchor="bottom"
       onPress={onPress}
-      accessibilityLabel={venue.name}>
+      accessibilityLabel={
+        venue.offerPercent != null ? `${venue.name}. ${venue.offerPercent}% off` : venue.name
+      }>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         <View style={{ width: LABEL_WIDTH }} />
-        <View style={{ width: PIN_WIDTH }}>
+        <View style={{ width: PIN_WIDTH, alignItems: 'center' }}>
+          {venue.offerPercent != null ? (
+            <Text
+              style={{
+                marginBottom: 1,
+                fontFamily: 'IBMPlexMono_600SemiBold',
+                fontSize: 12,
+                color: colors.accentDeep,
+              }}>
+              {`${venue.offerPercent}%`}
+            </Text>
+          ) : null}
           <MapPin colors={colors} size={PIN_WIDTH} />
         </View>
         <Text

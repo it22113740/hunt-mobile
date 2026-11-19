@@ -131,6 +131,7 @@ export const ownerPromotionSchema = z.object({
   imageUrl: z.string().nullish(),
   startsAt: z.string(),
   endsAt: z.string(),
+  discountPercent: z.number().nullish(),
   venue: z
     .object({
       id: z.string(),
@@ -151,6 +152,7 @@ export const promotionFormSchema = z
     imageUrl: z.string(),
     startsAt: z.string().min(1, 'Choose when it starts'),
     endsAt: z.string().min(1, 'Choose when it ends'),
+    discountPercent: z.number().int().min(1, 'Set a percentage').max(100, 'Use 100 or less'),
   })
   .refine((value) => new Date(value.endsAt).getTime() > new Date(value.startsAt).getTime(), {
     message: 'The end has to be after the start.',

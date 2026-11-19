@@ -1,7 +1,7 @@
 import { Chip } from '@/components/ui/chip';
 import { Body, Label } from '@/components/ui/typography';
 import { TextField } from '@/features/auth/components/text-field';
-import { FormFooter } from '@/features/owner/components/form-parts';
+import { BigNumberInput, FormFooter } from '@/features/owner/components/form-parts';
 import { ImageField } from '@/features/owner/components/image-field';
 import { WhenRange } from '@/features/owner/components/when-range';
 import { useSavePromotion } from '@/features/owner/hooks';
@@ -40,6 +40,7 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
       imageUrl: promotion?.imageUrl ?? '',
       startsAt: promotion?.startsAt ?? opening.startsAt,
       endsAt: promotion?.endsAt ?? opening.endsAt,
+      discountPercent: promotion?.discountPercent ?? 10,
     },
   });
   const venueId = useWatch({ control: form.control, name: 'venueId' });
@@ -71,8 +72,8 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
             <ImageField
               url={field.value}
               onChange={field.onChange}
-              height={190}
-              hint="Optional, but offers with a photo get noticed"
+              squarePixels={1248}
+              hint="Square photo, 1248 × 1248. Optional, but offers with a photo get noticed."
             />
           )}
         />
@@ -137,6 +138,27 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
               autoCapitalize="sentences"
               multiline
             />
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="discountPercent"
+          render={({ field, fieldState }) => (
+            <View style={{ gap: 8 }}>
+              <View style={{ flexDirection: 'row' }}>
+                <BigNumberInput
+                  label="Off"
+                  unit="%"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={fieldState.error?.message}
+                />
+              </View>
+              <Body size={13} color={colors.mute}>
+                Guests see this percentage on your shop’s pin while the offer is open.
+              </Body>
+            </View>
           )}
         />
         <Controller

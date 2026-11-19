@@ -9,6 +9,13 @@ type VenueMapProps = {
   height?: number;
 };
 
+function sketchName(venue?: Venue) {
+  if (!venue) return undefined;
+  return venue.offerPercent != null ? `${venue.offerPercent}% ${venue.name}` : venue.name;
+}
+
 export function VenueMap({ venues, height = 210 }: VenueMapProps) {
-  return <SketchMap height={height} primary={venues[0]?.name} secondary={venues[1]?.name} />;
+  const featured = venues.find((venue) => venue.offerPercent != null) ?? venues[0];
+  const other = venues.find((venue) => venue.id !== featured?.id);
+  return <SketchMap height={height} primary={sketchName(featured)} secondary={sketchName(other)} />;
 }

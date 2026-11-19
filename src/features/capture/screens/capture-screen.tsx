@@ -89,18 +89,18 @@ export function CaptureScreen() {
   };
 
   const pickLibrary = async () => {
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) {
+    setError(null);
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images', 'videos'],
+        allowsMultipleSelection: true,
+        quality: 0.8,
+      });
+      if (!result.canceled) addAssets(result.assets);
+    } catch {
       hapticWarning();
-      setError('Allow photo access to choose a visit.');
-      return;
+      setError('Could not open the photo picker.');
     }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images', 'videos'],
-      allowsMultipleSelection: true,
-      quality: 0.8,
-    });
-    if (!result.canceled) addAssets(result.assets);
   };
 
   const capture = async (kind: 'images' | 'videos') => {

@@ -177,7 +177,7 @@ function PromotionRow({
         </View>
         <DashRule width={isJournal ? 1.5 : 1} />
         {promotion.imageUrl ? (
-          <CachedImage source={{ uri: promotion.imageUrl }} style={{ height: 150, width: '100%' }} contentFit="cover" />
+          <CachedImage source={{ uri: promotion.imageUrl }} style={{ width: '100%', aspectRatio: 1 }} contentFit="cover" />
         ) : null}
         <View style={{ padding: 16, gap: 8 }}>
           <H2 size={24} style={{ letterSpacing: -0.48 }}>
@@ -188,7 +188,11 @@ function PromotionRow({
               {promotion.description}
             </Body>
           ) : null}
-          <Mono size={12}>{offerWindowLine(promotion.startsAt, promotion.endsAt)}</Mono>
+          <Mono size={12}>
+            {promotion.discountPercent != null
+              ? `${promotion.discountPercent}% off · ${offerWindowLine(promotion.startsAt, promotion.endsAt)}`
+              : offerWindowLine(promotion.startsAt, promotion.endsAt)}
+          </Mono>
         </View>
       </Card>
       <ActionMenu

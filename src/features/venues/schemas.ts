@@ -12,6 +12,7 @@ export const venueSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   distance: z.number().optional(),
+  offerPercent: z.number().nullish(),
 });
 
 export const venueListSchema = z.array(venueSchema);
@@ -39,6 +40,7 @@ export const promotionSchema = z.object({
   imageUrl: z.string().nullish(),
   startsAt: z.string(),
   endsAt: z.string(),
+  discountPercent: z.number().nullish(),
 });
 
 export const promotionListSchema = z.array(promotionSchema);
