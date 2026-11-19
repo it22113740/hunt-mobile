@@ -9,6 +9,7 @@ import { ListEnter, ScreenEnter } from '@/components/ui/enter';
 import { MediaViewer } from '@/components/ui/media-viewer';
 import { useTabBarInset } from '@/components/ui/tab-bar';
 import { Body, H1, H2, Hand, Label, ScribbleUnderline, Sub } from '@/components/ui/typography';
+import { DownloadMediaButton } from '@/features/owner/components/download-media-button';
 import { RejectSheet } from '@/features/owner/components/reject-sheet';
 import { ReviewCard, ReviewViewerFooter } from '@/features/owner/components/review-card';
 import { useMyVenues, useOwnerSubmissions, useReviewSubmission } from '@/features/owner/hooks';
@@ -149,6 +150,11 @@ export function ReviewScreen() {
         url={viewer?.mediaUrl ?? null}
         kind={viewer?.type ?? null}
         onClose={() => setViewer(null)}
+        headerAction={
+          viewer?.mediaUrl ? (
+            <DownloadMediaButton url={viewer.mediaUrl} kind={viewer.type} tone="viewer" />
+          ) : null
+        }
         footer={
           viewer ? (
             <ReviewViewerFooter

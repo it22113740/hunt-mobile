@@ -1,14 +1,14 @@
 import { Toggle } from '@/components/ui/controls';
 import { Body, H2, Sub } from '@/components/ui/typography';
 import { isGeofenceActive } from '@/features/location/tracking';
-import { useEnablePush, useTestPush } from '@/features/notifications/hooks';
+import { useEnablePush } from '@/features/notifications/hooks';
 import type { Profile } from '@/features/profile/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { useSurfaces } from '@/theme/surfaces';
 import { isAxiosError } from 'axios';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, AppState, Linking, Platform, Pressable, View } from 'react-native';
+import { ActivityIndicator, AppState, Linking, Platform, View } from 'react-native';
 
 type AlertsCardProps = {
   role: Profile['role'];
@@ -50,19 +50,10 @@ export function AlertsCard({ role, pushToken }: AlertsCardProps) {
   const router = useRouter();
   const { colors } = useSurfaces();
   const enablePush = useEnablePush();
-  const testPush = useTestPush();
   const pushOn = Boolean(pushToken) || enablePush.isSuccess;
   const arrivalOn = useArrivalTracking(role === 'USER');
 
   const pushNotice = enablePush.isError ? noticeFrom(enablePush.error, 'Couldn’t turn on notifications.') : null;
-
-  const testNotice = testPush.isError
-    ? noticeFrom(testPush.error, 'Couldn’t send the test push.')
-    : testPush.data
-      ? testPush.data.sent
-        ? 'Sent. Check this phone for the notification.'
-        : (testPush.data.reason ?? 'The push was not sent.')
-      : null;
 
   return (
     <View style={{ gap: 4 }}>
@@ -97,20 +88,6 @@ export function AlertsCard({ role, pushToken }: AlertsCardProps) {
           {pushNotice}
         </Sub>
       ) : null}
-      <Pressable
-        accessibilityRole="button"
-        accessibilityState={{ busy: testPush.isPending, disabled: testPush.isPending }}
-        disabled={testPush.isPending}
-        onPress={() => {
-          testPush.mutate();
-        }}
-        style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12 }}>
-        <Body size={14} weight="semibold" color={colors.accentDeep} style={{ textDecorationLine: 'underline' }}>
-          Send me a test nudge
-        </Body>
-        {testPush.isPending ? <ActivityIndicator size="small" color={colors.accentDeep} /> : null}
-      </Pressable>
-      {testNotice ? <Sub size={14}>{testNotice}</Sub> : null}
     </View>
   );
 }

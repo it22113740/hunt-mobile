@@ -7,6 +7,7 @@ import { Stamp, Tape } from '@/components/ui/decor';
 import { MediaTile } from '@/components/ui/media-tile';
 import { hapticSuccess } from '@/components/ui/press';
 import { Body, Hand, Mono, Pts } from '@/components/ui/typography';
+import { DownloadMediaButton } from '@/features/owner/components/download-media-button';
 import type { OwnerSubmission, OwnerVenue } from '@/features/owner/schemas';
 import { useSurfaces } from '@/theme/surfaces';
 import { useEffect } from 'react';
@@ -87,6 +88,13 @@ export function ReviewCard({
             bordered={false}
             onPress={onOpen}
           />
+          {item.mediaUrl ? (
+            <DownloadMediaButton
+              url={item.mediaUrl}
+              kind={item.type}
+              style={{ position: 'absolute', left: 12, bottom: 12 }}
+            />
+          ) : null}
           {!pending ? (
             <View style={{ position: 'absolute', top: 14, right: 14 }} pointerEvents="none">
               <Stamp

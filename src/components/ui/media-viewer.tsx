@@ -19,11 +19,13 @@ type MediaViewerProps = {
   onClose: () => void;
   /** Mono caption at the top right, e.g. `1 of 1`. */
   counter?: string;
+  /** Replaces the counter. Used for the owner download button. */
+  headerAction?: ReactNode;
   /** Content pinned under the media (e.g. the review actions). */
   footer?: ReactNode;
 };
 
-export function MediaViewer({ url, kind, onClose, counter = '1 of 1', footer }: MediaViewerProps) {
+export function MediaViewer({ url, kind, onClose, counter = '1 of 1', headerAction, footer }: MediaViewerProps) {
   const insets = useSafeAreaInsets();
   const { colors, isWhite } = useHuntTheme();
   const translateY = useSharedValue(0);
@@ -75,9 +77,11 @@ export function MediaViewer({ url, kind, onClose, counter = '1 of 1', footer }: 
                 }}>
                 <X color={colors.viewerText} size={18} strokeWidth={2} />
               </PressScale>
-              <Mono size={12} color={colors.viewerMute}>
-                {counter}
-              </Mono>
+              {headerAction ?? (
+                <Mono size={12} color={colors.viewerMute}>
+                  {counter}
+                </Mono>
+              )}
             </View>
             <View style={{ flex: 1, justifyContent: 'center', paddingVertical: 24 }}>
               <View style={{ width: '100%', aspectRatio: 390 / 390, maxHeight: '100%' }}>

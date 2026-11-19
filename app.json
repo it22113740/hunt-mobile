@@ -85,6 +85,15 @@
           "cameraPermission": "Hunt uses your camera to capture a visit."
         }
       ],
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Hunt uses your photo library when you save a guest photo or video.",
+          "savePhotosPermission": "Hunt saves guest photos and videos to your library.",
+          "isAccessMediaLocationEnabled": false,
+          "granularPermissions": ["photo", "video"]
+        }
+      ],
       "expo-video",
       "@maplibre/maplibre-react-native"
     ],

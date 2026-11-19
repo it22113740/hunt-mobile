@@ -1,7 +1,6 @@
 import { queryKeys } from '@/api/keys';
 import { queryClient } from '@/api/query-client';
 import { startGeofenceUpdates } from '@/features/location/tracking';
-import { sendTestPush } from '@/features/notifications/api';
 import { enablePushNotifications, loadNotifications } from '@/features/notifications/push';
 import type { Profile } from '@/features/profile/schemas';
 import { useAuthStore } from '@/stores/auth';
@@ -17,12 +16,6 @@ export function useEnablePush() {
   return useMutation({
     mutationFn: () => enablePushNotifications(true),
     onSuccess: cacheProfile,
-  });
-}
-
-export function useTestPush() {
-  return useMutation({
-    mutationFn: sendTestPush,
   });
 }
 

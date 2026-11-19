@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "367924448986",
-    "project_id": "hunt-abf3d",
-    "storage_bucket": "hunt-abf3d.firebasestorage.app"
+    "project_number": "737720811407",
+    "project_id": "hunt-5b278",
+    "storage_bucket": "hunt-5b278.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:367924448986:android:a6f172a433684fa7559fe3",
+        "mobilesdk_app_id": "1:737720811407:android:e6c03dba42ac41d0d655fa",
         "android_client_info": {
           "package_name": "com.hunt.mobile"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCQCcTezr0ZlFdcn_u-CDLk0z11nq7JaAk"
+          "current_key": "AIzaSyCe-2DIQGAT1N9LNAxtyRrOWOl9FRBIxaw"
         }
       ],
       "services": {
