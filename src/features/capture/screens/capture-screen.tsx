@@ -17,10 +17,11 @@ import {
   ViewfinderButton,
 } from '@/features/capture/components/capture-steps';
 import { useSubmitVisit } from '@/features/capture/hooks';
-import { useExploreVenues, useUserLocation } from '@/features/venues/hooks';
+import { useNearbyVenues, useUserLocation, useVenue } from '@/features/venues/hooks';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { useHuntColors } from '@/theme/colors';
 import * as ImagePicker from 'expo-image-picker';
+import * as Location from 'expo-location';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ScrollView, View } from 'react-native';
@@ -31,11 +32,12 @@ export function CaptureScreen() {
   const tabInset = useTabBarInset();
   const router = useRouter();
   const colors = useHuntColors();
-  const explore = useExploreVenues(true);
-  const location = useUserLocation();
-  const submit = useSubmitVisit();
   const params = useLocalSearchParams<{ venueId?: string | string[] }>();
   const paramVenueId = (Array.isArray(params.venueId) ? params.venueId[0] : params.venueId) ?? null;
+  const location = useUserLocation();
+  const nearby = useNearbyVenues(location.data?.lat, location.data?.lng);
+  const pinnedQuery = useVenue(paramVenueId);
+  const submit = useSubmitVisit();
   const [venueId, setVenueId] = useState<string | null>(paramVenueId);
   const [lastParamVenueId, setLastParamVenueId] = useState(paramVenueId);
   const [files, setFiles] = useState<VisitFile[]>([]);
@@ -48,12 +50,27 @@ export function CaptureScreen() {
     if (paramVenueId) setVenueId(paramVenueId);
   }
 
-  const venue = explore.venues.find((item) => item.id === venueId) ?? null;
+  const nearbyVenues = nearby.data ?? [];
+  const pinned = pinnedQuery.venue;
+  const choices =
+    pinned && !nearbyVenues.some((item) => item.id === pinned.id) ? [pinned, ...nearbyVenues] : nearbyVenues;
+  const venue = choices.find((item) => item.id === venueId) ?? null;
   const estimate = venue
     ? files.reduce((sum, file) => sum + (file.type === 'VIDEO' ? venue.pointsPerVideo : venue.pointsPerPhoto), 0)
     : 0;
-  const photoPoints = venue?.pointsPerPhoto ?? explore.venues[0]?.pointsPerPhoto ?? 10;
-  const videoPoints = venue?.pointsPerVideo ?? explore.venues[0]?.pointsPerVideo ?? 20;
+  const photoPoints = venue?.pointsPerPhoto ?? nearbyVenues[0]?.pointsPerPhoto ?? 10;
+  const videoPoints = venue?.pointsPerVideo ?? nearbyVenues[0]?.pointsPerVideo ?? 20;
+
+  const allowLocation = async () => {
+    const permission = await Location.requestForegroundPermissionsAsync();
+    if (!permission.granted) {
+      hapticWarning();
+      setError('Allow location to see the places around you.');
+      return;
+    }
+    setError(null);
+    await location.refetch();
+  };
 
   const addAssets = (assets: ImagePicker.ImagePickerAsset[]) => {
     setSent(null);
@@ -98,11 +115,11 @@ export function CaptureScreen() {
   };
 
   const onSubmit = async () => {
-    if (!venueId || files.length === 0) return;
+    if (!venue || files.length === 0) return;
     setError(null);
     setProgress(0);
     try {
-      await submit.mutateAsync({ venueId, files, onProgress: setProgress });
+      await submit.mutateAsync({ venueId: venue.id, files, onProgress: setProgress });
       hapticSuccess();
       setSent({ points: estimate });
       setFiles([]);
@@ -113,14 +130,17 @@ export function CaptureScreen() {
     }
   };
 
-  if (explore.isPending) return <ScreenState loading title="Loading venues" />;
-  if (explore.isError) {
+  const waitingForPin = Boolean(paramVenueId) && pinnedQuery.isPending && !pinned;
+  const locating =
+    waitingForPin || (!pinned && (location.isPending || (Boolean(location.data) && nearby.isPending)));
+  if (locating) return <ScreenState loading title="Finding places near you" />;
+  if (nearby.isError && choices.length === 0) {
     return (
       <ScreenState
-        title="Couldn’t load venues"
-        detail="Pick a place after the list loads."
+        title="Couldn’t load nearby places"
+        detail="Check your connection and try again."
         action="Try again"
-        onPress={() => void explore.refetch()}
+        onPress={() => void nearby.refetch()}
       />
     );
   }
@@ -135,8 +155,8 @@ export function CaptureScreen() {
     );
   }
 
-  const ready = Boolean(venueId) && files.length > 0;
-  const hint = !venueId
+  const ready = Boolean(venue) && files.length > 0;
+  const hint = !venue
     ? 'Pick the place you’re at first.'
     : files.length === 0
       ? 'Add at least one shot first.'
@@ -164,15 +184,15 @@ export function CaptureScreen() {
 
         <View style={{ gap: 12 }}>
           <StepTitle step="01" title="Where are you?" />
-          {explore.venues.length === 0 ? (
-            <Sub>No places on Hunt yet. Check back once a venue joins.</Sub>
+          {choices.length > 0 ? (
+            <VenueStrip venues={choices} selectedId={venue?.id ?? null} origin={location.data} onSelect={setVenueId} />
+          ) : !location.data ? (
+            <View style={{ gap: 12 }}>
+              <Sub>Turn on location so Hunt can show the places around you.</Sub>
+              <Button label="Allow location" variant="secondary" onPress={() => void allowLocation()} />
+            </View>
           ) : (
-            <VenueStrip
-              venues={explore.venues}
-              selectedId={venueId}
-              origin={location.data}
-              onSelect={setVenueId}
-            />
+            <Sub>No places near you. Open a venue to submit a visit from its page.</Sub>
           )}
         </View>
 

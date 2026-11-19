@@ -78,7 +78,7 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
     <ScreenEnter className="flex-1 bg-hunt-paper">
       <ScrollView
         style={{ flexGrow: 1, flexShrink: 1, minHeight: 0 }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 148 }}
         onScroll={onScroll}
         scrollEventThrottle={32}
         refreshControl={refreshControl}>
@@ -206,7 +206,10 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
           borderTopWidth: strong.width,
           borderTopColor: strong.color,
         }}>
-        <Button label="Capture a visit" leftIcon={<CameraIcon color={colors.onAccent} size={20} />} onPress={capture} />
+        <Button label="Submit a visit" leftIcon={<CameraIcon color={colors.onAccent} size={20} />} onPress={capture} />
+        <Body size={13} color={colors.mute} style={{ textAlign: 'center', marginTop: 8 }}>
+          Send shots for this place, even if you’re not there.
+        </Body>
       </View>
     </ScreenEnter>
   );

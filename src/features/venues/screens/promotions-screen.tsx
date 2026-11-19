@@ -55,7 +55,7 @@ export function CustomerPromotionsScreen() {
             <PromotionCard promotion={item} onPress={() => router.push(`/(user)/venue/${item.venue.id}`)} />
           </ListEnter>
         )}
-        ListFooterComponent={rows.length > 0 ? <EndOfList /> : null}
+        ListFooterComponent={rows.length > 0 ? <EndOfList /> : undefined}
         ListEmptyComponent={
           <EmptyState
             illustration="empty-perks"

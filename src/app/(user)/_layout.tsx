@@ -2,7 +2,7 @@ import { useHuntColors } from '@/theme/colors';
 import { Stack } from 'expo-router';
 
 export const unstable_settings = {
-  initialRouteName: '(tabs)',
+  anchor: '(tabs)',
 };
 
 export default function UserLayout() {
@@ -10,7 +10,6 @@ export default function UserLayout() {
 
   return (
     <Stack
-      initialRouteName="(tabs)"
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: colors.paper },

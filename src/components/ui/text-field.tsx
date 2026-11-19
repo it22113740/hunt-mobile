@@ -34,6 +34,11 @@ type TextFieldProps = {
 };
 
 const RULE = 34;
+/**
+ * Bricolage at 17px is centered in each 34px line, so its baseline lands ~23px down.
+ * The rule is drawn on the last pixel of that band. This inset drops the baseline onto it.
+ */
+const RULED_PAD = 10;
 
 export function TextField({
   label,
@@ -86,7 +91,6 @@ export function TextField({
         onBlur?.();
       }}
       onFocus={() => setFocused(true)}
-      placeholder={placeholder}
       placeholderTextColor={colors.faint}
       selectionColor={colors.accent}
       cursorColor={colors.accent}
@@ -96,6 +100,7 @@ export function TextField({
       autoCorrect={false}
       autoComplete={autoComplete}
       maxLength={maxLength}
+      placeholder={multiline ? undefined : placeholder}
       multiline={multiline}
       accessibilityLabel={label ?? placeholder}
       textAlignVertical={multiline ? 'top' : 'center'}
@@ -110,7 +115,13 @@ export function TextField({
           textAlign: centered ? 'center' : 'left',
         },
         multiline
-          ? { minHeight: RULE * 3, lineHeight: RULE, paddingTop: 4, paddingBottom: 0 }
+          ? {
+              minHeight: RULE * 3,
+              lineHeight: RULE,
+              paddingTop: RULED_PAD,
+              paddingBottom: 0,
+              includeFontPadding: false,
+            }
           : { height: variant === 'box' ? '100%' : 48, paddingVertical: 0 },
       ]}
     />
@@ -120,7 +131,7 @@ export function TextField({
     <View style={{ gap: 6 }}>
       {label ? <Label>{label}</Label> : null}
       {multiline ? (
-        <View style={{ position: 'relative' }}>
+        <View style={{ position: 'relative', minHeight: RULE * 3 }}>
           <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
             <Defs>
               <Pattern id={ruleId} width={8} height={RULE} patternUnits="userSpaceOnUse">
@@ -129,6 +140,23 @@ export function TextField({
             </Defs>
             <Rect width="100%" height="100%" fill={`url(#${ruleId})`} />
           </Svg>
+          {placeholder && value.length === 0 ? (
+            <Text
+              pointerEvents="none"
+              style={{
+                position: 'absolute',
+                left: 2,
+                right: 2,
+                top: RULED_PAD,
+                color: colors.faint,
+                fontFamily,
+                fontSize,
+                lineHeight: RULE,
+                includeFontPadding: false,
+              }}>
+              {placeholder}
+            </Text>
+          ) : null}
           {input}
         </View>
       ) : (

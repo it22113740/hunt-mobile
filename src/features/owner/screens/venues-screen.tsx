@@ -120,7 +120,7 @@ export function VenuesScreen() {
                 </View>
               ) : null}
             </View>
-          ) : null
+          ) : undefined
         }
         ListEmptyComponent={
           <EmptyState

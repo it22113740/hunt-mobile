@@ -83,7 +83,7 @@ export function PromotionsScreen() {
             <View style={{ paddingTop: 18 }}>
               <AddTile label="Write another offer" onPress={addOffer} />
             </View>
-          ) : null
+          ) : undefined
         }
         ListEmptyComponent={<NothingPosted onWrite={addOffer} />}
       />

@@ -1,6 +1,6 @@
 import { hapticLight } from '@/components/ui/press';
 import { useHuntTheme } from '@/theme/colors';
-import type { BottomTabBarProps } from 'expo-router/build/react-navigation/bottom-tabs';
+import type { BottomTabBarProps } from 'expo-router/tabs';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -20,7 +20,7 @@ type FloatingTabBarProps = BottomTabBarProps & {
   raisedRoute?: string;
 };
 
-export function FloatingTabBar({ state, descriptors, navigation, raisedRoute }: FloatingTabBarProps) {
+export function FloatingTabBar({ state, descriptors, emitter, navigateToTab, raisedRoute }: FloatingTabBarProps) {
   const { colors, isJournal } = useHuntTheme();
   const insets = useSafeAreaInsets();
   const height = useBarHeight();
@@ -55,10 +55,10 @@ export function FloatingTabBar({ state, descriptors, navigation, raisedRoute }: 
             accessibilityState={{ selected: focused }}
             onPress={() => {
               hapticLight();
-              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-              if (!focused && !event.defaultPrevented) navigation.navigate(route.name, route.params);
+              const event = emitter.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              if (!focused && !event.defaultPrevented) navigateToTab(route.key);
             }}
-            onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
+            onLongPress={() => emitter.emit({ type: 'tabLongPress', target: route.key })}
             style={{
               flex: 1,
               alignItems: 'center',

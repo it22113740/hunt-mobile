@@ -115,19 +115,21 @@ export function useExploreVenues(browseAll: boolean) {
   };
 }
 
-export function useVenue(venueId: string) {
-  const venues = useAllVenues(true);
+export function useVenue(venueId: string | null) {
+  const venues = useAllVenues(Boolean(venueId));
   const client = useQueryClient();
-  const cached = client
-    .getQueriesData<Venue[]>({ queryKey: ['venues'] })
-    .flatMap(([, data]) => data ?? [])
-    .find((item) => item.id === venueId);
+  const cached = venueId
+    ? client
+        .getQueriesData<Venue[]>({ queryKey: ['venues'] })
+        .flatMap(([, data]) => data ?? [])
+        .find((item) => item.id === venueId)
+    : undefined;
 
   return {
     ...venues,
-    venue: venues.data?.find((item) => item.id === venueId) ?? cached ?? null,
-    isPending: venues.isPending && !cached,
-    isError: venues.isError && !cached,
+    venue: venueId ? (venues.data?.find((item) => item.id === venueId) ?? cached ?? null) : null,
+    isPending: Boolean(venueId) && venues.isPending && !cached,
+    isError: Boolean(venueId) && venues.isError && !cached,
   };
 }
 

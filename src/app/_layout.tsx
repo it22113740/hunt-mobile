@@ -31,16 +31,9 @@ import { NavigationBar } from 'expo-navigation-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StatusBar as NativeStatusBar, Platform, View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 SplashScreen.preventAutoHideAsync();
-
-// Every mounted StatusBar re-applies these defaults on Android; without them some devices (and Expo Go)
-// fall back to an opaque black bar that hides the dark icons. Screens pad themselves with the top inset.
-if (Platform.OS === 'android') {
-  NativeStatusBar.setTranslucent(true);
-  NativeStatusBar.setBackgroundColor('transparent');
-}
 
 export default function RootLayout() {
   const colors = useHuntColors();

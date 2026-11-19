@@ -120,7 +120,7 @@ export function PerksScreen() {
                 </View>
               ) : null}
             </View>
-          ) : null
+          ) : undefined
         }
         ListEmptyComponent={
           <EmptyState

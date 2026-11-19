@@ -13,9 +13,15 @@ type VenueMapProps = {
   height?: number;
 };
 
+function MapPreview({ venues, height = 210 }: VenueMapProps) {
+  return <SketchMap height={height} primary={venues[0]?.name} secondary={venues[1]?.name} />;
+}
+
 // Loaded lazily: MapLibre's native module is missing from Expo Go and throws on import.
 const VenueMapLibre = lazy(() =>
-  import('@/features/venues/components/venue-map-libre').then((module) => ({ default: module.VenueMapLibre })),
+  import('@/features/venues/components/venue-map-libre')
+    .then((module) => ({ default: module.VenueMapLibre }))
+    .catch(() => ({ default: MapPreview })),
 );
 
 export function VenueMap(props: VenueMapProps) {

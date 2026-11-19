@@ -96,7 +96,7 @@ export function RedemptionsScreen() {
               <Doodle kind="squiggle" size={100} rotate={4} style={{ right: 20, top: 70 }} />
               <Doodle kind="star" size={22} rotate={10} style={{ right: 50, top: 120 }} />
             </View>
-          ) : null
+          ) : undefined
         }
         ListEmptyComponent={
           <EmptyState

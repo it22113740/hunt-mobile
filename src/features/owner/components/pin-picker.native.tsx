@@ -6,9 +6,19 @@ import { useHuntColors } from '@/theme/colors';
 import { lazy, Suspense } from 'react';
 import { View } from 'react-native';
 
+function PinPreview(props: PinPickerProps) {
+  return (
+    <PinPickerFrame lat={props.lat} lng={props.lng} onChange={props.onChange} typedByDefault>
+      <SketchMap height={230} />
+    </PinPickerFrame>
+  );
+}
+
 // Loaded lazily: MapLibre's native module is missing from Expo Go and throws on import.
 const PinPickerLibre = lazy(() =>
-  import('@/features/owner/components/pin-picker-libre').then((module) => ({ default: module.PinPickerLibre })),
+  import('@/features/owner/components/pin-picker-libre')
+    .then((module) => ({ default: module.PinPickerLibre }))
+    .catch(() => ({ default: PinPreview })),
 );
 
 export function PinPicker(props: PinPickerProps) {
