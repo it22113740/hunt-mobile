@@ -35,10 +35,9 @@ export function ExploreScreen() {
   const router = useRouter();
   const { colors, isJournal, isWhite } = useSurfaces();
   const user = useAuthStore((state) => state.user);
-  const [browseAll, setBrowseAll] = useState(false);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
-  const explore = useExploreVenues(browseAll);
+  const explore = useExploreVenues();
   const location = useUserLocation();
   const city = useCityName(location.data);
   const promotions = usePromotionFeed();
@@ -83,12 +82,10 @@ export function ExploreScreen() {
   }
 
   const filtering = query.trim().length > 0 || category !== 'All';
-  const scope = city.data ?? (explore.source === 'near' ? 'Near you' : 'All places');
+  const scope = city.data ?? 'All places';
   const mapNote = explore.locationOff
     ? 'Location is off. Showing all places.'
-    : explore.source === 'near'
-      ? 'Showing places around you.'
-      : 'Showing every place on Hunt.';
+    : 'Showing every place on Hunt. Closer ones come first.';
 
   return (
     <ScreenEnter className="flex-1 bg-hunt-paper" style={{ paddingTop: insets.top }}>
@@ -214,16 +211,10 @@ export function ExploreScreen() {
         ListEmptyComponent={
           <EmptyState
             illustration="empty-venues"
-            title={filtering ? 'No matches' : explore.source === 'near' ? 'Nothing nearby' : 'No venues yet'}
+            title={filtering ? 'No matches' : 'No venues yet'}
             detail={
-              filtering
-                ? 'Try another name or category.'
-                : explore.source === 'near'
-                  ? 'No restaurants or bars are inside range.'
-                  : 'Check back once owners publish a place.'
+              filtering ? 'Try another name or category.' : 'Check back once owners publish a place.'
             }
-            action={!filtering && explore.source === 'near' ? 'See all venues' : undefined}
-            onPress={!filtering && explore.source === 'near' ? () => setBrowseAll(true) : undefined}
           />
         }
       />

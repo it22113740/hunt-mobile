@@ -7,8 +7,9 @@ import {
   fetchVenuePromotions,
   fetchVenues,
 } from '@/features/venues/api';
-import type { Venue } from '@/features/venues/schemas';
+import { distanceMeters, type Venue } from '@/features/venues/schemas';
 import * as Location from 'expo-location';
+import { useMemo } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Platform } from 'react-native';
 
@@ -77,34 +78,31 @@ export function useAllVenues(enabled: boolean) {
   });
 }
 
-export function useExploreVenues(browseAll: boolean) {
+/** Every published place. Location only sorts the nearer shops first. */
+export function useExploreVenues() {
   const client = useQueryClient();
   const location = useUserLocation();
   const coords = location.data;
-  const nearby = useNearbyVenues(coords?.lat, coords?.lng);
-  const fallback = browseAll || (location.isFetched && !coords) || nearby.isError;
-  const all = useAllVenues(fallback);
+  const all = useAllVenues(true);
 
-  const waitingForNearby = Boolean(coords) && !browseAll && !nearby.isError && nearby.isPending;
-  const isPending = browseAll
-    ? all.isPending
-    : location.isPending || waitingForNearby || (fallback && all.isPending);
-  const isError = fallback ? all.isError : false;
-  const isRefetching = location.isRefetching || (fallback ? all.isRefetching : nearby.isRefetching);
-  const venues = fallback ? (all.data ?? []) : (nearby.data ?? []);
+  const venues = useMemo(() => {
+    const rows = all.data ?? [];
+    if (!coords) return rows;
+    return rows
+      .map((venue) => ({ ...venue, distance: distanceMeters(coords, venue) }))
+      .sort((a, b) => (a.distance ?? 0) - (b.distance ?? 0));
+  }, [all.data, coords]);
 
   const refetch = async () => {
     await location.refetch();
-    if (fallback) await all.refetch();
-    else await nearby.refetch();
+    await all.refetch();
   };
 
   return {
     venues,
-    source: fallback ? ('all' as const) : ('near' as const),
-    isPending,
-    isRefetching,
-    isError,
+    isPending: all.isPending,
+    isRefetching: all.isRefetching || location.isRefetching,
+    isError: all.isError,
     refetch,
     locationOff: location.isFetched && !coords,
     enableLocation: async () => {
