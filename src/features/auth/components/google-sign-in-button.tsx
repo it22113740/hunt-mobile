@@ -7,7 +7,7 @@ import { getApiErrorMessage } from '@/lib/api-error';
 import { useAuthStore } from '@/stores/auth';
 import { useSurfaces } from '@/theme/surfaces';
 import { useState } from 'react';
-import { Platform, View } from 'react-native';
+import { View } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 
 type GoogleSignInButtonProps = {
@@ -19,8 +19,6 @@ export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
   const establishSession = useAuthStore((state) => state.establishSession);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  if (Platform.OS === 'web') return null;
 
   const onPress = async () => {
     setError(null);
