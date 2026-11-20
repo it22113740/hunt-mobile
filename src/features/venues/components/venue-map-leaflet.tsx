@@ -213,8 +213,8 @@ function VenueLayer({
           <Marker
             key={group.venue.id}
             position={[group.venue.lat, group.venue.lng]}
-            icon={pinIcon(group.venue.name, group.venue.offerPercent, colors)}
-            zIndexOffset={group.venue.offerPercent ?? 0}
+            icon={pinIcon(group.venue.name, group.venue.offerPercent, colors, group.stack)}
+            zIndexOffset={(group.venue.offerPercent ?? 0) + group.stack}
             eventHandlers={{ click: () => onSelect(group.venue.id) }}
             title={pinLabel(group.venue)}
           />
@@ -243,7 +243,12 @@ function clusterIcon(count: number, size: number, hasOffer: boolean, colors: Ret
   });
 }
 
-function pinIcon(name: string, offerPercent: number | null | undefined, colors: ReturnType<typeof useHuntColors>) {
+function pinIcon(
+  name: string,
+  offerPercent: number | null | undefined,
+  colors: ReturnType<typeof useHuntColors>,
+  stack = 0,
+) {
   const offer =
     offerPercent != null
       ? `<span style="font-family:IBMPlexMono_600SemiBold,monospace;font-size:12px;color:${colors.accentDeep};">${offerPercent}%</span>`
@@ -258,7 +263,7 @@ function pinIcon(name: string, offerPercent: number | null | undefined, colors: 
   return L.divIcon({
     className: '',
     iconSize: [188, 40],
-    iconAnchor: [94, 40],
+    iconAnchor: [94, 40 + stack * 38],
     html,
   });
 }

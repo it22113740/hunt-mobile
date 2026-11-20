@@ -257,6 +257,7 @@ function PinMarker({ pin, colors, onPress }: { pin: VenuePin; colors: HuntColors
       id={`venue-${venue.id}`}
       lngLat={[venue.lng, venue.lat]}
       anchor="bottom"
+      offset={pin.stack ? [0, -pin.stack * 38] : undefined}
       onPress={onPress}
       accessibilityLabel={pinLabel(venue)}>
       <View collapsable={false} style={{ alignItems: 'center', maxWidth: 188 }}>

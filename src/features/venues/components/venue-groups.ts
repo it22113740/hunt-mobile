@@ -21,6 +21,8 @@ export type VenueCluster = {
 export type VenuePin = {
   kind: 'pin';
   venue: Venue;
+  /** 0 sits on the building. Higher values lift the label so names in one building stay readable. */
+  stack: number;
 };
 
 export type VenueGroup = VenueCluster | VenuePin;
@@ -55,9 +57,15 @@ export function venuesInBounds(
 }
 
 function asPins(venues: Venue[]): VenuePin[] {
+  const seen = new Map<string, number>();
   return [...venues]
-    .sort((a, b) => (a.offerPercent ?? -1) - (b.offerPercent ?? -1))
-    .map((venue) => ({ kind: 'pin', venue }));
+    .sort((a, b) => a.name.localeCompare(b.name) || a.id.localeCompare(b.id))
+    .map((venue) => {
+      const key = `${venue.lat.toFixed(5)}:${venue.lng.toFixed(5)}`;
+      const stack = seen.get(key) ?? 0;
+      seen.set(key, stack + 1);
+      return { kind: 'pin', venue, stack };
+    });
 }
 
 export function groupVenues(venues: Venue[], zoom: number): VenueGroup[] {
@@ -81,7 +89,7 @@ export function groupVenues(venues: Venue[], zoom: number): VenueGroup[] {
   for (const [key, members] of buckets) {
     const [only] = members;
     if (only && members.length === 1 && zoom >= DETAIL_ZOOM) {
-      groups.push({ kind: 'pin', venue: only });
+      groups.push({ kind: 'pin', venue: only, stack: 0 });
       continue;
     }
     const lat = members.reduce((sum, venue) => sum + venue.lat, 0) / members.length;
