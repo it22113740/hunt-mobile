@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { View } from 'react-native';
 
-export function ChangePasswordForm() {
+export function ChangePasswordForm({ hasPassword = true }: { hasPassword?: boolean }) {
   const { colors } = useSurfaces();
   const change = useChangePassword();
   const [formError, setFormError] = useState<string | null>(null);
@@ -31,6 +31,15 @@ export function ChangePasswordForm() {
       setFormError(getApiErrorMessage(error, 'Could not update your password.'));
     }
   });
+
+  if (!hasPassword) {
+    return (
+      <View style={{ gap: 4 }}>
+        <H2>Sign-in</H2>
+        <Sub size={14}>This account uses Google.</Sub>
+      </View>
+    );
+  }
 
   return (
     <View style={{ gap: 18 }}>

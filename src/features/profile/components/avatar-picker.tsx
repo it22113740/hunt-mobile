@@ -88,7 +88,10 @@ export function AvatarPicker({ profile }: AvatarPickerProps) {
           <H1 size={28} numberOfLines={1}>
             {displayName}
           </H1>
-          <Stamp label={profile.role === 'OWNER' ? 'Business' : 'Explorer'} tone="wait" />
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            <Stamp label={profile.role === 'OWNER' ? 'Business' : 'Explorer'} tone="wait" />
+            {profile.googleVerified ? <Stamp label="Google verified" tone="ok" /> : null}
+          </View>
         </View>
       </View>
       {error ? (

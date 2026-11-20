@@ -6,6 +6,8 @@ export const profileSchema = z.object({
   username: z.string().nullable(),
   imageUrl: z.string().nullable(),
   role: z.enum(['OWNER', 'USER']),
+  googleVerified: z.boolean().default(false),
+  hasPassword: z.boolean().default(true),
   pushToken: z.string().nullish(),
   ownerProfile: z
     .object({

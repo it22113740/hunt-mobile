@@ -1,4 +1,5 @@
 import { AuthScaffold, FormError, InlineLink, TextLink } from '@/features/auth/components/auth-scaffold';
+import { GoogleSignInButton } from '@/features/auth/components/google-sign-in-button';
 import { PrimaryButton } from '@/features/auth/components/primary-button';
 import { TextField } from '@/features/auth/components/text-field';
 import { useLogin } from '@/features/auth/hooks';
@@ -43,6 +44,7 @@ export function LoginScreen() {
         <>
           <FormError message={formError} />
           <PrimaryButton label="Sign in" onPress={onSubmit} loading={submitting} />
+          <GoogleSignInButton />
           <TextLink
             label="New here?"
             action="Create an account"

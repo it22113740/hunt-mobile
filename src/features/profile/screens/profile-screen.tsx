@@ -83,7 +83,7 @@ export function ProfileScreen() {
             <AvatarPicker profile={profile.data} />
             <ProfileForm profile={profile.data} />
             <DashRule width={isJournal ? 1.5 : 1} />
-            <ChangePasswordForm />
+            <ChangePasswordForm hasPassword={profile.data.hasPassword} />
             <DashRule width={isJournal ? 1.5 : 1} />
             <AlertsCard role={profile.data.role} pushToken={profile.data.pushToken} />
             <Pressable

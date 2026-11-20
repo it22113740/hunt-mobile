@@ -106,6 +106,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   logout: async () => {
+    try {
+      const { signOutGoogle } = await import('@/features/auth/google');
+      await signOutGoogle();
+    } catch {
+      // Google sign-in may be unavailable in this build.
+    }
     setAccessToken(null);
     set({ token: null, user: null, role: null });
     await clearAccessToken();

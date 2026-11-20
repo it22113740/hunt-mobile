@@ -22,6 +22,11 @@ export async function login(values: LoginValues) {
   return authSessionSchema.parse(data);
 }
 
+export async function loginWithGoogle(input: { idToken: string; role?: 'USER' | 'OWNER' }) {
+  const { data } = await api.post<unknown>('/auth/google', input);
+  return authSessionSchema.parse(data);
+}
+
 export async function registerAccount(values: RegisterValues) {
   if (values.role === 'OWNER') {
     const { data } = await api.post<unknown>('/auth/register/owner', {

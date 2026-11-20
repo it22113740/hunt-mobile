@@ -1,4 +1,5 @@
 import { AuthScaffold, FormError, TextLink } from '@/features/auth/components/auth-scaffold';
+import { GoogleSignInButton } from '@/features/auth/components/google-sign-in-button';
 import { PrimaryButton } from '@/features/auth/components/primary-button';
 import { RoleSwitch } from '@/features/auth/components/role-switch';
 import { TextField } from '@/features/auth/components/text-field';
@@ -59,6 +60,7 @@ export function RegisterScreen() {
         <>
           <FormError message={formError} />
           <PrimaryButton label="Send code" onPress={onSubmit} loading={submitting} />
+          <GoogleSignInButton role={role} />
           <TextLink
             label="Already have an account?"
             action="Sign in"

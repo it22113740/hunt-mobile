@@ -12,7 +12,20 @@
           "package_name": "com.hunt.mobile"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "737720811407-g9lcj3o2hic6cillris78lo2gk3s6bqe.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hunt.mobile",
+            "certificate_hash": "05564dfbce50f896958e262ecc4c8b20a6400251"
+          }
+        },
+        {
+          "client_id": "737720811407-sosd031mu4peg37o88fuub8gp423s4kt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCe-2DIQGAT1N9LNAxtyRrOWOl9FRBIxaw"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "737720811407-sosd031mu4peg37o88fuub8gp423s4kt.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
