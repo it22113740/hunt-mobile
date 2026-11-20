@@ -1,21 +1,30 @@
+import type { VenueMapProps } from '@/features/venues/components/map-chrome';
 import { SketchMap } from '@/features/venues/components/sketch-map';
-import type { Venue } from '@/features/venues/schemas';
+import { useEffect, useState, type ComponentType } from 'react';
 
-type VenueMapProps = {
-  venues: Venue[];
-  latitude?: number;
-  longitude?: number;
-  onSelect: (venueId: string) => void;
-  height?: number;
-};
+/** Leaflet touches `window`, so the live map loads after the static page is in the browser. */
+export function VenueMap(props: VenueMapProps) {
+  const [LiveMap, setLiveMap] = useState<ComponentType<VenueMapProps> | null>(null);
 
-function sketchName(venue?: Venue) {
-  if (!venue) return undefined;
-  return venue.offerPercent != null ? `${venue.offerPercent}% ${venue.name}` : venue.name;
-}
+  useEffect(() => {
+    let active = true;
+    void import('@/features/venues/components/venue-map-leaflet')
+      .then((module) => {
+        if (active) setLiveMap(() => module.VenueMapLeaflet);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
-export function VenueMap({ venues, height = 210 }: VenueMapProps) {
-  const featured = venues.find((venue) => venue.offerPercent != null) ?? venues[0];
-  const other = venues.find((venue) => venue.id !== featured?.id);
-  return <SketchMap height={height} primary={sketchName(featured)} secondary={sketchName(other)} />;
+  if (!LiveMap) {
+    const featured = props.venues.find((venue) => venue.offerPercent != null) ?? props.venues[0];
+    const other = props.venues.find((venue) => venue.id !== featured?.id);
+    const label = (venue?: (typeof props.venues)[number]) =>
+      venue ? (venue.offerPercent != null ? `${venue.offerPercent}% ${venue.name}` : venue.name) : undefined;
+    return <SketchMap height={props.height ?? 210} primary={label(featured)} secondary={label(other)} />;
+  }
+
+  return <LiveMap {...props} />;
 }

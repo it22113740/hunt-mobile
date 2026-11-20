@@ -6,20 +6,23 @@ import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Doodle, Rule, Tape } from '@/components/ui/decor';
 import { ListEnter, ScreenEnter } from '@/components/ui/enter';
-import { AppHeader } from '@/components/ui/screen-header';
+import { AppHeader, ProfileAvatarButton } from '@/components/ui/screen-header';
 import { useTabBarInset } from '@/components/ui/tab-bar';
 import { TextField } from '@/components/ui/text-field';
-import { Body, H1, H2, Hand, Label, MarkedHeading } from '@/components/ui/typography';
+import { Body, H2, Hand, Label, MarkedHeading } from '@/components/ui/typography';
+import { getHomeGreeting, type Stats } from '@/features/venues/home-greeting';
 import { VenueCard } from '@/features/venues/components/venue-card';
+import { venueCountLabel } from '@/features/venues/components/venue-groups';
 import { VenueMap } from '@/features/venues/components/venue-map';
 import { useCityName, useExploreVenues, usePromotionFeed, useUserLocation } from '@/features/venues/hooks';
 import { shortDate, untilLine } from '@/lib/dates';
+import { isTamil, TAMIL_FONT } from '@/lib/tamil';
 import { useAuthStore } from '@/stores/auth';
 import { useSurfaces } from '@/theme/surfaces';
 import { useRouter } from 'expo-router';
-import { ChevronRight, Search } from 'lucide-react-native';
-import { useMemo, useState } from 'react';
-import { FlatList, ScrollView, View } from 'react-native';
+import { ChevronRight, Coffee, Moon, MoonStar, PartyPopper, Search, Sun, SunMedium, Sunrise, Sunset, type LucideIcon } from 'lucide-react-native';
+import { useEffect, useMemo, useState } from 'react';
+import { FlatList, Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const categoryPlural: Record<string, string> = {
@@ -29,6 +32,46 @@ const categoryPlural: Record<string, string> = {
   Other: 'Other',
 };
 
+const greetingIcons: Record<string, LucideIcon> = {
+  sunrise: Sunrise,
+  'sun-high': SunMedium,
+  sun: Sun,
+  coffee: Coffee,
+  'sunset-2': Sunset,
+  'moon-stars': MoonStar,
+  moon: Moon,
+  confetti: PartyPopper,
+};
+
+function useTypewriter(hints: string[]) {
+  const [index, setIndex] = useState(0);
+  const [length, setLength] = useState(0);
+  const hintKey = hints.join('|');
+
+  useEffect(() => {
+    setIndex(0);
+    setLength(0);
+  }, [hintKey]);
+
+  useEffect(() => {
+    const hint = hints[index % Math.max(hints.length, 1)] ?? '';
+    const timer = setTimeout(
+      () => {
+        if (length < hint.length) setLength((count) => count + 1);
+        else {
+          setIndex((value) => value + 1);
+          setLength(0);
+        }
+      },
+      length < hint.length ? 42 : 1400,
+    );
+    return () => clearTimeout(timer);
+  }, [hints, index, length]);
+
+  const hint = hints[index % Math.max(hints.length, 1)] ?? '';
+  return hint.slice(0, length);
+}
+
 export function ExploreScreen() {
   const insets = useSafeAreaInsets();
   const tabInset = useTabBarInset();
@@ -37,6 +80,8 @@ export function ExploreScreen() {
   const user = useAuthStore((state) => state.user);
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('All');
+  const [shuffle, setShuffle] = useState(0);
+  const [areaCount, setAreaCount] = useState<number | null>(null);
   const explore = useExploreVenues();
   const location = useUserLocation();
   const city = useCityName(location.data);
@@ -44,16 +89,28 @@ export function ExploreScreen() {
   const refreshControl = useListRefresh([explore]);
   const name = user?.username || user?.email?.split('@')[0] || 'there';
   const offer = promotions.data?.[0];
+  const stats: Stats = promotions.data && promotions.data.length > 0 ? { deals: promotions.data.length } : {};
+  const greeting = getHomeGreeting(name, new Date(), shuffle, stats);
+  const searchHint = useTypewriter(greeting.searchHints);
+  const GreetingIcon = greetingIcons[greeting.icon] ?? Sun;
+  const tamilMark = isTamil(greeting.greeting.highlight);
 
   const categories = useMemo(() => {
     const names = explore.venues.map((venue) => venue.category).filter((item): item is string => Boolean(item));
-    return ['All', ...Array.from(new Set(names))];
-  }, [explore.venues]);
+    const extras = Array.from(new Set(names)).filter(
+      (item) => !greeting.chips.some((chip) => chip.toLowerCase() === item.toLowerCase()),
+    );
+    return ['All', ...greeting.chips, ...extras];
+  }, [explore.venues, greeting.chips]);
 
   const venues = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return explore.venues.filter((venue) => {
-      const categoryOk = category === 'All' || venue.category === category;
+      const categoryOk =
+        category === 'All' ||
+        venue.category === category ||
+        venue.category?.toLowerCase() === category.toLowerCase().replace('é', 'e').replace(/s$/, '') ||
+        `${venue.name} ${venue.category ?? ''}`.toLowerCase().includes(category.toLowerCase());
       const textOk =
         !needle || venue.name.toLowerCase().includes(needle) || venue.address.toLowerCase().includes(needle);
       return categoryOk && textOk;
@@ -105,22 +162,45 @@ export function ExploreScreen() {
                 <Doodle kind="squiggle" size={80} rotate={-4} style={{ left: 130, top: 114 }} />
               </>
             ) : null}
-            <AppHeader />
+            <AppHeader
+              right={
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+                  <GreetingIcon color={colors.accent} size={22} strokeWidth={1.8} />
+                  <ProfileAvatarButton />
+                </View>
+              }
+            />
 
             <View style={{ gap: 8 }}>
               <Label>{`${shortDate(new Date())} · ${scope}`}</Label>
-              {isWhite ? (
-                <MarkedHeading before="Where to " mark="tonight" after={`, ${name}?`} />
-              ) : (
-                <H1>{`Where to tonight, ${name}?`}</H1>
-              )}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${greeting.greeting.before}${greeting.greeting.highlight}${greeting.greeting.after}. Show another greeting`}
+                onPress={() => setShuffle((value) => value + 1)}>
+                <MarkedHeading
+                  before={greeting.greeting.before}
+                  mark={greeting.greeting.highlight}
+                  after={greeting.greeting.after}
+                  marked={isWhite}
+                  markStyle={
+                    tamilMark
+                      ? { fontFamily: TAMIL_FONT, lineHeight: 46, letterSpacing: 0 }
+                      : undefined
+                  }
+                />
+              </Pressable>
+              {greeting.note ? (
+                <Hand size={22} style={isTamil(greeting.note) ? { fontFamily: TAMIL_FONT } : undefined}>
+                  {greeting.note}
+                </Hand>
+              ) : null}
             </View>
 
             <TextField
               variant="box"
               value={query}
               onChangeText={setQuery}
-              placeholder="A place, a street, a craving"
+              placeholder={query.length === 0 ? searchHint : 'A place, a street, a craving'}
               leftIcon={<Search color={colors.ink} size={20} strokeWidth={1.8} />}
             />
 
@@ -147,6 +227,7 @@ export function ExploreScreen() {
                 latitude={location.data?.lat}
                 longitude={location.data?.lng}
                 onSelect={openVenue}
+                onVisibleCount={setAreaCount}
               />
               <View
                 style={{
@@ -159,9 +240,16 @@ export function ExploreScreen() {
                   borderTopWidth: isJournal ? 1.5 : 1,
                   borderTopColor: isJournal ? colors.ink : colors.line,
                 }}>
-                <Body size={14} color={colors.mute} style={{ flex: 1 }}>
-                  {mapNote}
-                </Body>
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Body size={14} weight="semibold" color={colors.ink}>
+                    {areaCount == null ? mapNote : venueCountLabel(areaCount)}
+                  </Body>
+                  {explore.locationOff && areaCount != null ? (
+                    <Body size={13} color={colors.mute}>
+                      Location is off, so this includes every place.
+                    </Body>
+                  ) : null}
+                </View>
                 {explore.locationOff ? (
                   <Chip compact strong label="Turn on" onPress={() => void explore.enableLocation()} />
                 ) : null}

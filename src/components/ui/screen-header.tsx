@@ -48,9 +48,9 @@ export function AppHeader({ title, markTitle = false, tag, right }: AppHeaderPro
           <H1 size={28}>{title}</H1>
         )
       ) : (
-        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 8 }}>
-          <Wordmark />
-          {tag ? <Label style={{ marginBottom: 5 }}>{tag}</Label> : null}
+        <View style={{ flexDirection: 'row', alignItems: 'flex-end', gap: 10 }}>
+          <Wordmark size={34} />
+          {tag ? <Label style={{ marginBottom: 8 }}>{tag}</Label> : null}
         </View>
       )}
       {trailing}

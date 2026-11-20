@@ -1,17 +1,10 @@
+import type { VenueMapProps } from '@/features/venues/components/map-chrome';
 import { SketchMap } from '@/features/venues/components/sketch-map';
 import type { Venue } from '@/features/venues/schemas';
 import { isExpoGo } from '@/lib/expo-go';
 import { useHuntColors } from '@/theme/colors';
 import { lazy, Suspense } from 'react';
 import { View } from 'react-native';
-
-type VenueMapProps = {
-  venues: Venue[];
-  latitude?: number;
-  longitude?: number;
-  onSelect: (venueId: string) => void;
-  height?: number;
-};
 
 function sketchName(venue?: Venue) {
   if (!venue) return undefined;

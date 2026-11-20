@@ -6,6 +6,7 @@
     "@expo-google-fonts/bricolage-grotesque": "^0.4.1",
     "@expo-google-fonts/caveat": "^0.4.2",
     "@expo-google-fonts/ibm-plex-mono": "^0.4.1",
+    "@expo-google-fonts/meera-inimai": "^0.4.1",
     "@expo/ui": "~58.0.29",
     "@hookform/resolvers": "^5.9.1",
     "@maplibre/maplibre-react-native": "^11.5.0",

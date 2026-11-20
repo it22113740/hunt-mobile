@@ -178,7 +178,7 @@ export function CaptureScreen() {
         contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 22, paddingBottom: 24, gap: 22 }}
         keyboardShouldPersistTaps="handled">
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Wordmark />
+          <Wordmark size={34} />
           <Label>New entry</Label>
         </View>
 

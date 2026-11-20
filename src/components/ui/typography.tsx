@@ -276,6 +276,7 @@ export function MarkedHeading({
   size = 32,
   level = 1,
   marked = true,
+  markStyle,
 }: {
   before?: string;
   mark: string;
@@ -283,13 +284,15 @@ export function MarkedHeading({
   size?: number;
   level?: 1 | 2;
   marked?: boolean;
+  /** Used for a marked word that needs its own face, such as Tamil. */
+  markStyle?: StyleProp<TextStyle>;
 }) {
   const Heading = level === 1 ? H1 : H2;
   if (!marked) {
     return (
       <Heading size={size}>
         {before}
-        {mark}
+        <Text style={markStyle}>{mark}</Text>
         {after}
       </Heading>
     );
@@ -307,7 +310,9 @@ export function MarkedHeading({
         </Heading>
       ))}
       <ScribbleUnderline>
-        <Heading size={size}>{mark}</Heading>
+        <Heading size={size} style={markStyle}>
+          {mark}
+        </Heading>
       </ScribbleUnderline>
       {words(after).map((word, index) => (
         <Heading key={`a${index}`} size={size}>

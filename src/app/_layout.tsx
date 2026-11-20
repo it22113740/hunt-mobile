@@ -19,6 +19,7 @@ import {
   BricolageGrotesque_800ExtraBold,
 } from '@expo-google-fonts/bricolage-grotesque';
 import { Caveat_500Medium, Caveat_600SemiBold } from '@expo-google-fonts/caveat';
+import { MeeraInimai_400Regular } from '@expo-google-fonts/meera-inimai';
 import {
   IBMPlexMono_400Regular,
   IBMPlexMono_500Medium,
@@ -52,6 +53,7 @@ export default function RootLayout() {
     IBMPlexMono_600SemiBold,
     Caveat_500Medium,
     Caveat_600SemiBold,
+    MeeraInimai_400Regular,
   });
   useAuthRedirect();
   useDeviceServices();
