@@ -101,8 +101,9 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   },
 
   setSession: async (token, user) => {
+    setAccessToken(token);
+    set({ token, user, role: user.role, isHydrated: true, error: null });
     await writeAccessToken(token);
-    set({ token, user, role: user.role, error: null });
   },
 
   logout: async () => {

@@ -17,6 +17,7 @@ type GoogleSignInButtonProps = {
 export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
   const { colors } = useSurfaces();
   const establishSession = useAuthStore((state) => state.establishSession);
+  const setSession = useAuthStore((state) => state.setSession);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +27,8 @@ export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
     try {
       const idToken = await requestGoogleIdToken();
       const session = await loginWithGoogle(role ? { idToken, role } : { idToken });
-      await establishSession(session.accessToken);
+      if (session.user) await setSession(session.accessToken, session.user);
+      else await establishSession(session.accessToken);
     } catch (signInError) {
       if (signInError instanceof GoogleSignInCancelled) return;
       setError(getApiErrorMessage(signInError, signInError instanceof Error ? signInError.message : 'Could not sign in with Google.'));

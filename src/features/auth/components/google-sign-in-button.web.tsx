@@ -38,9 +38,11 @@ function loadGoogleIdentity(): Promise<void> {
 export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
   const { colors } = useSurfaces();
   const establishSession = useAuthStore((state) => state.establishSession);
+  const setSession = useAuthStore((state) => state.setSession);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const roleRef = useRef(role);
   const [error, setError] = useState<string | null>(null);
+  const [signingIn, setSigningIn] = useState(false);
   roleRef.current = role;
 
   useEffect(() => {
@@ -61,10 +63,16 @@ export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
           callback: (response) => {
             if (!response.credential) return;
             setError(null);
+            setSigningIn(true);
             const currentRole = roleRef.current;
-            void loginWithGoogle(currentRole ? { idToken: response.credential as string, role: currentRole } : { idToken: response.credential })
-              .then((session) => establishSession(session.accessToken))
+            const credential = response.credential;
+            void loginWithGoogle(currentRole ? { idToken: credential, role: currentRole } : { idToken: credential })
+              .then(async (session) => {
+                if (session.user) await setSession(session.accessToken, session.user);
+                else await establishSession(session.accessToken);
+              })
               .catch((signInError: unknown) => {
+                setSigningIn(false);
                 setError(getApiErrorMessage(signInError, 'Could not sign in with Google.'));
               });
           },
@@ -87,7 +95,7 @@ export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
     return () => {
       cancelled = true;
     };
-  }, [establishSession]);
+  }, [establishSession, setSession]);
 
   return (
     <View style={{ gap: 10, marginTop: 8 }}>
@@ -99,7 +107,12 @@ export function GoogleSignInButton({ role }: GoogleSignInButtonProps) {
         <View style={{ flex: 1, height: 1, backgroundColor: colors.line }} />
       </View>
       <FormError message={error} />
-      <div ref={hostRef} style={{ minHeight: 44 }} />
+      {signingIn ? (
+        <Body size={14} color={colors.mute} style={{ textAlign: 'center' }}>
+          Signing in…
+        </Body>
+      ) : null}
+      <div ref={hostRef} style={{ minHeight: 44, display: signingIn ? 'none' : 'block' }} />
     </View>
   );
 }

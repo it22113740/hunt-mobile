@@ -78,6 +78,15 @@ export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 
 export const authSessionSchema = z.object({
   accessToken: z.string(),
+  user: z
+    .object({
+      id: z.string(),
+      email: z.string(),
+      username: z.string().nullish(),
+      imageUrl: z.string().nullish(),
+      role: z.enum(['OWNER', 'USER']),
+    })
+    .optional(),
 });
 
 export const messageSchema = z.object({
