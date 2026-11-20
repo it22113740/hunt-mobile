@@ -284,7 +284,7 @@ export function ExploreScreen() {
 
             <View style={{ gap: 6 }}>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <H2>On the map</H2>
+                <H2>Nearby Spots to Hunt</H2>
                 <Hand>{`${venues.length} ${venues.length === 1 ? 'spot' : 'spots'} so far`}</Hand>
               </View>
               <Rule />
