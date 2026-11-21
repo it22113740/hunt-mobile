@@ -8,6 +8,7 @@ import { uploadImage } from '@/features/owner/api';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { useSurfaces } from '@/theme/surfaces';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
+import type { ImageContentFit } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import { useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
@@ -18,6 +19,9 @@ type ImageFieldProps = {
   label?: string;
   hint?: string;
   height?: number;
+  /** Show an existing photo at this square size, in points, with the whole picture visible. */
+  size?: number;
+  contentFit?: ImageContentFit;
   /** Crop to a square and save at this size, in pixels, on each side. The preview is square. */
   squarePixels?: number;
 };
@@ -48,6 +52,8 @@ export function ImageField({
   label = 'Add a cover photo',
   hint = 'Your front door works best. It’s what guests look for.',
   height = 170,
+  size,
+  contentFit = 'cover',
   squarePixels,
 }: ImageFieldProps) {
   const { colors, surfaces } = useSurfaces();
@@ -91,19 +97,114 @@ export function ImageField({
     }
   };
 
-  const frame = squarePixels ? { width: '100%' as const, aspectRatio: 1 } : { height };
+  const frame = size
+    ? { width: size, height: size }
+    : squarePixels
+      ? { width: '100%' as const, aspectRatio: 1 }
+      : { height };
+
+  if (size) {
+    return (
+      <View style={{ gap: 8 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+          <View>
+            {url ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel="View photo"
+                onPress={() => setViewing(true)}
+                style={[
+                  surfaces.image,
+                  {
+                    width: size,
+                    height: size,
+                    borderRadius: 8,
+                    overflow: 'hidden',
+                    backgroundColor: colors.placeholder,
+                  },
+                ]}>
+                <CachedImage
+                  source={{ uri: url }}
+                  style={{ width: size, height: size }}
+                  contentFit="contain"
+                />
+              </Pressable>
+            ) : (
+              <PressScale
+                accessibilityRole="button"
+                accessibilityLabel={label}
+                accessibilityHint={hint}
+                onPress={() => void pick()}
+                style={[
+                  surfaces.dashed,
+                  { width: size, height: size, alignItems: 'center', justifyContent: 'center' },
+                ]}>
+                <ImageIcon color={colors.accentDeep} size={22} strokeWidth={1.6} />
+              </PressScale>
+            )}
+            {uploading ? (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  bottom: 0,
+                  left: 0,
+                  borderRadius: 8,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: colors.scrim,
+                }}>
+                <ActivityIndicator color={colors.card} />
+              </View>
+            ) : null}
+          </View>
+          <View style={{ flex: 1, gap: 6 }}>
+            <Body size={16} weight="bold">
+              {url ? 'Shop photo' : label}
+            </Body>
+            <Body size={14} color={colors.mute}>
+              {hint}
+            </Body>
+            {url ? (
+              <PressScale accessibilityRole="button" accessibilityLabel="Change photo" onPress={() => void pick()}>
+                <Body size={14} weight="bold" color={colors.accentDeep}>
+                  Change photo
+                </Body>
+              </PressScale>
+            ) : null}
+          </View>
+        </View>
+        {error ? (
+          <Body size={13} color={colors.danger}>
+            {error}
+          </Body>
+        ) : null}
+        <MediaViewer url={viewing ? url : null} kind={viewing && url ? 'PHOTO' : null} onClose={() => setViewing(false)} />
+      </View>
+    );
+  }
 
   return (
     <View style={{ gap: 8 }}>
       <View>
         {url ? (
-          <View style={[surfaces.image, frame, { borderRadius: 10, overflow: 'hidden' }]}>
+          <View
+            style={[
+              surfaces.image,
+              frame,
+              {
+                borderRadius: 10,
+                overflow: 'hidden',
+                backgroundColor: contentFit === 'contain' ? colors.placeholder : undefined,
+              },
+            ]}>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="View photo"
               onPress={() => setViewing(true)}
               style={{ flex: 1 }}>
-              <CachedImage source={{ uri: url }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
+              <CachedImage source={{ uri: url }} style={{ width: '100%', height: '100%' }} contentFit={contentFit} />
             </Pressable>
             <PressScale
               accessibilityRole="button"

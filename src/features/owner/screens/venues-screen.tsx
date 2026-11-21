@@ -1,4 +1,3 @@
-import { CachedImage } from '@/components/cached-image';
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { EmptyState } from '@/components/empty-state';
 import { useListRefresh } from '@/components/list-refresh';
@@ -6,12 +5,13 @@ import { ScreenState } from '@/components/screen-state';
 import { ActionMenu } from '@/components/ui/action-menu';
 import { Card } from '@/components/ui/card';
 import { StatStrip } from '@/components/ui/controls';
-import { Doodle, Placeholder, Tape } from '@/components/ui/decor';
+import { Doodle, Tape } from '@/components/ui/decor';
 import { ListEnter, ScreenEnter } from '@/components/ui/enter';
 import { AppHeader } from '@/components/ui/screen-header';
 import { useTabBarInset } from '@/components/ui/tab-bar';
-import { Body, H2, Label, MarkedHeading, Mono } from '@/components/ui/typography';
+import { Body, H2, MarkedHeading, Mono } from '@/components/ui/typography';
 import { AddTile } from '@/features/owner/components/add-tile';
+import { ShopImage } from '@/features/venues/components/shop-image';
 import { useDeleteVenue, useMyPerks, useMyVenues, useOwnerRedemptions, useOwnerSubmissions } from '@/features/owner/hooks';
 import type { OwnerVenue } from '@/features/owner/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
@@ -163,31 +163,14 @@ function VenueRow({
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const { colors, surfaces, isJournal } = useSurfaces();
+  const { colors } = useSurfaces();
 
   return (
     <View>
       <Card onPress={onEdit} accessibilityLabel={`${venue.name}. Edit place`}>
-        <View
-          style={{
-            height: 170,
-            borderBottomWidth: surfaces.image.borderWidth,
-            borderBottomColor: isJournal ? colors.ink : colors.line,
-          }}>
-          {venue.imageUrl ? (
-            <CachedImage
-              source={{ uri: venue.imageUrl }}
-              style={{ height: '100%', width: '100%' }}
-              contentFit="cover"
-              accessibilityLabel={`Front of ${venue.name}`}
-            />
-          ) : (
-            <Placeholder style={{ flex: 1 }} radius={0} bordered={false}>
-              <Label>{venue.category || 'Your place'}</Label>
-            </Placeholder>
-          )}
-        </View>
-        <View style={{ paddingHorizontal: 16, paddingTop: 14, paddingBottom: 16, gap: 10 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14, padding: 14, paddingRight: 52 }}>
+          <ShopImage uri={venue.imageUrl} label={venue.category || venue.name} />
+          <View style={{ flex: 1, gap: 10 }}>
           <View style={{ gap: 3 }}>
             <H2 size={22}>{venue.name}</H2>
             <Body size={14} color={colors.mute}>
@@ -198,6 +181,7 @@ function VenueRow({
             <Mono size={12}>{`◎ ${venue.radiusMeters} m`}</Mono>
             <Mono size={12}>{`+${venue.pointsPerPhoto} photo`}</Mono>
             <Mono size={12}>{`+${venue.pointsPerVideo} video`}</Mono>
+          </View>
           </View>
         </View>
       </Card>

@@ -83,12 +83,18 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
         onScroll={onScroll}
         scrollEventThrottle={32}
         refreshControl={refreshControl}>
-        <View style={{ height: HERO_HEIGHT + insets.top, borderBottomWidth: strong.width, borderBottomColor: strong.color }}>
+        <View
+          style={{
+            height: HERO_HEIGHT + insets.top,
+            backgroundColor: colors.placeholder,
+            borderBottomWidth: strong.width,
+            borderBottomColor: strong.color,
+          }}>
           {venue.imageUrl ? (
             <CachedImage
               source={{ uri: venue.imageUrl }}
               style={{ height: '100%', width: '100%' }}
-              contentFit="cover"
+              contentFit="contain"
               accessibilityLabel={`Photo of ${venue.name}`}
             />
           ) : (
@@ -217,7 +223,6 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
   );
 }
 
-/** Soft dark fade at the top of the photo so light status bar icons stay readable. */
 function PhotoTopShade({ height }: { height: number }) {
   return (
     <Svg pointerEvents="none" width="100%" height={height} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>

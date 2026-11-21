@@ -75,7 +75,16 @@ export function VenueForm({ venue, origin, onSaved }: VenueFormProps) {
         <Controller
           control={form.control}
           name="imageUrl"
-          render={({ field }) => <ImageField url={field.value} onChange={field.onChange} />}
+          render={({ field }) => (
+            <ImageField
+              url={field.value}
+              onChange={field.onChange}
+              height={300}
+              contentFit="contain"
+              label="Add a shop photo"
+              hint="The whole picture shows here and on your store page."
+            />
+          )}
         />
         <FormSection step="01" title="The basics">
           <Controller

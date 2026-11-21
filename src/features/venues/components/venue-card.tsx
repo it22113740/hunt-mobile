@@ -1,7 +1,6 @@
 import { PressScale } from '@/components/ui/press-scale';
-import { CachedImage } from '@/components/cached-image';
-import { Placeholder } from '@/components/ui/decor';
-import { Body, Label, Mono, Pts } from '@/components/ui/typography';
+import { Body, Mono, Pts } from '@/components/ui/typography';
+import { ShopImage } from '@/features/venues/components/shop-image';
 import { formatDistance, type Venue } from '@/features/venues/schemas';
 import { useSurfaces } from '@/theme/surfaces';
 import { View } from 'react-native';
@@ -14,7 +13,7 @@ type VenueCardProps = {
 
 /** Numbered journal row: index, photo, name, address and what a visit earns. */
 export function VenueCard({ venue, index, onPress }: VenueCardProps) {
-  const { colors, surfaces } = useSurfaces();
+  const { colors } = useSurfaces();
   const distance = venue.distance !== undefined ? formatDistance(venue.distance) : null;
   return (
     <PressScale
@@ -32,15 +31,7 @@ export function VenueCard({ venue, index, onPress }: VenueCardProps) {
       <Mono size={12} color={colors.faint} style={{ width: 18 }}>
         {String(index + 1).padStart(2, '0')}
       </Mono>
-      {venue.imageUrl ? (
-        <View style={[surfaces.image, { width: 76, height: 76, borderRadius: 8, overflow: 'hidden' }]}>
-          <CachedImage source={{ uri: venue.imageUrl }} style={{ width: '100%', height: '100%' }} contentFit="cover" />
-        </View>
-      ) : (
-        <Placeholder style={{ width: 76, height: 76 }}>
-          <Label>{venue.category || 'Place'}</Label>
-        </Placeholder>
-      )}
+      <ShopImage uri={venue.imageUrl} label={venue.category || venue.name} />
       <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
         <Body size={18} weight="bold" numberOfLines={1}>
           {venue.name}

@@ -116,15 +116,12 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "7ef7d80d-f5eb-4a91-ad13-32d4330fa151"
+        "projectId": "41010bc3-d8f4-4bd1-94d0-6a49adfff01b"
       }
     },
-    "owner": "santa07",
+    "owner": "santa-07",
     "runtimeVersion": {
       "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/7ef7d80d-f5eb-4a91-ad13-32d4330fa151"
     }
   }
 }
