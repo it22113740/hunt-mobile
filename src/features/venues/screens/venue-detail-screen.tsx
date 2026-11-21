@@ -21,13 +21,13 @@ import { useMyPoints } from '@/features/wallet/hooks';
 import { useSurfaces } from '@/theme/surfaces';
 import { useIsFocused, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
-import { Pressable, ScrollView, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
-import { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { useState } from 'react';
+import { Pressable, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HERO_HEIGHT = 300;
+/** Shop photos are 4:3. The frame matches the real photo once it loads. */
+const PHOTO_ASPECT = 4 / 3;
 
 type VenueDetailScreenProps = {
   venueId: string;
@@ -44,14 +44,8 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
   const balance = useMyPoints();
   const venue = venueQuery.venue;
   const [viewer, setViewer] = useState<GalleryItem | null>(null);
-  const [pastHero, setPastHero] = useState(false);
+  const [photoAspect, setPhotoAspect] = useState(PHOTO_ASPECT);
   const focused = useIsFocused();
-  const scrim = useSharedValue(0);
-  const scrimStyle = useAnimatedStyle(() => ({ opacity: scrim.get() }));
-
-  useEffect(() => {
-    scrim.set(withTiming(pastHero ? 1 : 0, { duration: 160 }));
-  }, [pastHero, scrim]);
   const refreshControl = useListRefresh([venueQuery, perks, promotions, gallery]);
   const mine = balance.data?.byVenue.find((item) => item.venueId === venueId)?.points ?? 0;
 
@@ -68,10 +62,6 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
     );
   }
 
-  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    setPastHero(event.nativeEvent.contentOffset.y > HERO_HEIGHT - 4);
-  };
-  const overPhoto = Boolean(venue.imageUrl) && !pastHero;
   const capture = () => router.push({ pathname: '/(user)/(tabs)/capture', params: { venueId } });
   const strong = isJournal ? { width: 1.5, color: colors.ink } : { width: 1, color: colors.line };
 
@@ -79,13 +69,14 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
     <ScreenEnter className="flex-1 bg-hunt-paper">
       <ScrollView
         style={{ flexGrow: 1, flexShrink: 1, minHeight: 0 }}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 148 }}
-        onScroll={onScroll}
-        scrollEventThrottle={32}
+        contentContainerStyle={{ paddingTop: insets.top, paddingBottom: insets.bottom + 148 }}
         refreshControl={refreshControl}>
         <View
           style={{
-            height: HERO_HEIGHT + insets.top,
+            width: '100%',
+            aspectRatio: venue.imageUrl ? photoAspect : undefined,
+            height: venue.imageUrl ? undefined : HERO_HEIGHT,
+            overflow: 'hidden',
             backgroundColor: colors.placeholder,
             borderBottomWidth: strong.width,
             borderBottomColor: strong.color,
@@ -93,17 +84,20 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
           {venue.imageUrl ? (
             <CachedImage
               source={{ uri: venue.imageUrl }}
-              style={{ height: '100%', width: '100%' }}
-              contentFit="contain"
+              style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}
+              contentFit="cover"
               accessibilityLabel={`Photo of ${venue.name}`}
+              onLoad={(event) => {
+                const { width, height } = event.source;
+                if (width > 0 && height > 0) setPhotoAspect(width / height);
+              }}
             />
           ) : (
             <Placeholder bordered={false} radius={0} style={{ flex: 1 }}>
               <Label>{venue.category || 'Place'}</Label>
             </Placeholder>
           )}
-          {venue.imageUrl && insets.top ? <PhotoTopShade height={insets.top + 36} /> : null}
-          <View style={{ position: 'absolute', left: 18, top: insets.top + 10 }}>
+          <View style={{ position: 'absolute', left: 18, top: 10 }}>
             <BackButton />
           </View>
           {venue.category ? (
@@ -198,8 +192,8 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
           </View>
         </View>
       </ScrollView>
-      <StatusBarScrim style={scrimStyle} />
-      {focused ? <StatusBar style={overPhoto ? 'light' : 'dark'} animated /> : null}
+      <StatusBarScrim />
+      {focused ? <StatusBar style="dark" animated /> : null}
       <MediaViewer url={viewer?.mediaUrl ?? null} kind={viewer?.type ?? null} onClose={() => setViewer(null)} />
       <View
         style={{
@@ -220,20 +214,6 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
         </Body>
       </View>
     </ScreenEnter>
-  );
-}
-
-function PhotoTopShade({ height }: { height: number }) {
-  return (
-    <Svg pointerEvents="none" width="100%" height={height} style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-      <Defs>
-        <LinearGradient id="venue-top-shade" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#000" stopOpacity={0.38} />
-          <Stop offset="1" stopColor="#000" stopOpacity={0} />
-        </LinearGradient>
-      </Defs>
-      <Rect width="100%" height="100%" fill="url(#venue-top-shade)" />
-    </Svg>
   );
 }
 

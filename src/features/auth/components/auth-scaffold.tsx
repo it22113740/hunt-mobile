@@ -4,8 +4,8 @@ import { BackButton } from '@/components/ui/icon-button';
 import { StatusBarScrim } from '@/components/ui/status-bar-scrim';
 import { Body, H1, Sub, Wordmark } from '@/components/ui/typography';
 import { useSurfaces } from '@/theme/surfaces';
-import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AuthScaffoldProps = {
@@ -19,16 +19,31 @@ type AuthScaffoldProps = {
 
 export function AuthScaffold({ title, subtitle, children, footer, onBack, illustration }: AuthScaffoldProps) {
   const insets = useSafeAreaInsets();
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const show = Keyboard.addListener('keyboardDidShow', (event) => {
+      setKeyboardHeight(event.endCoordinates.height);
+    });
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
   return (
     <ScreenEnter className="flex-1 bg-hunt-paper">
-      {/* Edge-to-edge Android no longer resizes the window for the keyboard, so pad on both platforms. */}
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
+      {/* iOS pads the whole screen. Android only adds scroll room, so the focused field stays on screen. */}
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
           keyboardShouldPersistTaps="handled"
           keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
           showsVerticalScrollIndicator={false}
           style={{ flex: 1 }}
-          contentContainerStyle={{ flexGrow: 1 }}>
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: keyboardHeight }}>
           <View
             style={{
               flexGrow: 1,

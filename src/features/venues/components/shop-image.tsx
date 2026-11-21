@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/typography';
 import { useSurfaces } from '@/theme/surfaces';
 import { View } from 'react-native';
 
-/** Frame for every shop photo. Matches the Nearby Spots listing and shows the whole picture. */
+/** Square frame for shop photos on Nearby Spots and the owner Places list. */
 export const SHOP_IMAGE_SIZE = 76;
 
 type ShopImageProps = {
@@ -36,7 +36,7 @@ export function ShopImage({ uri, label = 'Place' }: ShopImageProps) {
       <CachedImage
         source={{ uri }}
         style={{ width: SHOP_IMAGE_SIZE, height: SHOP_IMAGE_SIZE }}
-        contentFit="contain"
+        contentFit="cover"
         accessibilityLabel={label}
       />
     </View>

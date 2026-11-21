@@ -10,7 +10,7 @@ import { useSurfaces } from '@/theme/surfaces';
 import { manipulateAsync, SaveFormat } from 'expo-image-manipulator';
 import type { ImageContentFit } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 
 type ImageFieldProps = {
@@ -60,6 +60,11 @@ export function ImageField({
   const [uploading, setUploading] = useState(false);
   const [viewing, setViewing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [aspect, setAspect] = useState(4 / 3);
+
+  useEffect(() => {
+    setAspect(4 / 3);
+  }, [url]);
 
   const pick = async () => {
     setError(null);
@@ -101,7 +106,9 @@ export function ImageField({
     ? { width: size, height: size }
     : squarePixels
       ? { width: '100%' as const, aspectRatio: 1 }
-      : { height };
+      : contentFit === 'contain'
+        ? { width: '100%' as const, aspectRatio: aspect }
+        : { height };
 
   if (size) {
     return (
@@ -203,8 +210,17 @@ export function ImageField({
               accessibilityRole="button"
               accessibilityLabel="View photo"
               onPress={() => setViewing(true)}
-              style={{ flex: 1 }}>
-              <CachedImage source={{ uri: url }} style={{ width: '100%', height: '100%' }} contentFit={contentFit} />
+              style={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 }}>
+              <CachedImage
+                source={{ uri: url }}
+                style={{ width: '100%', height: '100%' }}
+                contentFit={contentFit === 'contain' ? 'cover' : contentFit}
+                onLoad={(event) => {
+                  if (contentFit !== 'contain') return;
+                  const { width, height: sourceHeight } = event.source;
+                  if (width > 0 && sourceHeight > 0) setAspect(width / sourceHeight);
+                }}
+              />
             </Pressable>
             <PressScale
               accessibilityRole="button"

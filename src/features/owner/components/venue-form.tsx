@@ -79,7 +79,6 @@ export function VenueForm({ venue, origin, onSaved }: VenueFormProps) {
             <ImageField
               url={field.value}
               onChange={field.onChange}
-              height={300}
               contentFit="contain"
               label="Add a shop photo"
               hint="The whole picture shows here and on your store page."
