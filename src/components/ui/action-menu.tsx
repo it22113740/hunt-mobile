@@ -11,11 +11,13 @@ type ActionMenuProps = {
   onDelete: () => void;
   /** What the menu acts on, e.g. "Place options". */
   label?: string;
+  /** Turns the item on or off. Shown above Edit. */
+  status?: { label: string; onPress: () => void };
   size?: number;
   style?: StyleProp<ViewStyle>;
 };
 
-export function ActionMenu({ onEdit, onDelete, label = 'Options', size = 40, style }: ActionMenuProps) {
+export function ActionMenu({ onEdit, onDelete, label = 'Options', status, size = 40, style }: ActionMenuProps) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -24,6 +26,16 @@ export function ActionMenu({ onEdit, onDelete, label = 'Options', size = 40, sty
       <BottomSheet visible={open} onClose={() => setOpen(false)} accessibilityLabel={label}>
         <View style={{ gap: 12 }}>
           <Label>{label}</Label>
+          {status ? (
+            <Button
+              variant="secondary"
+              label={status.label}
+              onPress={() => {
+                setOpen(false);
+                status.onPress();
+              }}
+            />
+          ) : null}
           <Button
             variant="secondary"
             label="Edit"

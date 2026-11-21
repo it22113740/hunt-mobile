@@ -73,6 +73,47 @@ export const gallerySchema = z.array(galleryItemSchema);
 
 export type GalleryItem = z.infer<typeof galleryItemSchema>;
 
+export const perkShotSchema = z.object({
+  id: z.string(),
+  mediaUrl: z.string(),
+  createdAt: z.string(),
+  perkId: z.string(),
+  perkTitle: z.string(),
+  username: z.string(),
+});
+
+export type PerkShot = z.infer<typeof perkShotSchema>;
+
+export const redeemedBoardSchema = z.object({
+  venueName: z.string(),
+  sinceLabel: z.string(),
+  people: z.number(),
+  perks: z.number(),
+  photos: z.number(),
+  videos: z.number(),
+  shots: z.number().default(0),
+  thisWeek: z.number(),
+  cameBack: z.number(),
+  regulars: z.number(),
+  topPerk: z.string().nullable(),
+  preview: z.array(perkShotSchema),
+  filters: z.array(z.object({ id: z.string(), title: z.string() })),
+});
+
+export type RedeemedBoard = z.infer<typeof redeemedBoardSchema>;
+
+export const perkShotPageSchema = z.object({
+  items: z.array(perkShotSchema),
+  nextCursor: z.string().nullable(),
+});
+
+export const savedPerkShotSchema = z.object({
+  id: z.string(),
+  redemptionId: z.string(),
+  venueId: z.string(),
+  mediaUrl: z.string(),
+});
+
 /** Great-circle distance in metres. */
 export function distanceMeters(from: { lat: number; lng: number }, to: { lat: number; lng: number }): number {
   const toRad = (deg: number) => (deg * Math.PI) / 180;

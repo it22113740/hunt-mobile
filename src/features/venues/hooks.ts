@@ -3,6 +3,8 @@ import {
   fetchApprovedMedia,
   fetchNearbyVenues,
   fetchPromotionFeed,
+  fetchRedeemed,
+  fetchRedeemedShots,
   fetchVenuePerks,
   fetchVenuePromotions,
   fetchVenues,
@@ -10,7 +12,7 @@ import {
 import { distanceMeters, type Venue } from '@/features/venues/schemas';
 import * as Location from 'expo-location';
 import { useMemo } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Platform } from 'react-native';
 
 async function readGrantedLocation() {
@@ -147,6 +149,24 @@ export function useVenuePromotions(venueId: string | null) {
   return useQuery({
     queryKey: queryKeys.venuePromotions(venueId ?? ''),
     queryFn: () => fetchVenuePromotions(venueId ?? ''),
+    enabled: Boolean(venueId),
+  });
+}
+
+export function useRedeemed(venueId: string | null) {
+  return useQuery({
+    queryKey: queryKeys.redeemed(venueId ?? ''),
+    queryFn: () => fetchRedeemed(venueId ?? ''),
+    enabled: Boolean(venueId),
+  });
+}
+
+export function useRedeemedShots(venueId: string, filter: string) {
+  return useInfiniteQuery({
+    queryKey: queryKeys.redeemedShots(venueId, filter),
+    queryFn: ({ pageParam }) => fetchRedeemedShots(venueId, filter, pageParam || undefined),
+    initialPageParam: '',
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
     enabled: Boolean(venueId),
   });
 }

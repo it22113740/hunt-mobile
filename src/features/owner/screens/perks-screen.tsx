@@ -9,7 +9,7 @@ import { useTabBarInset } from '@/components/ui/tab-bar';
 import { Body, Hand, MarkedHeading, Sub } from '@/components/ui/typography';
 import { AddTile } from '@/features/owner/components/add-tile';
 import { PerkCard, perkTypeLabel } from '@/features/owner/components/perk-preview';
-import { useDeletePerk, useMyPerks, useOwnerRedemptions } from '@/features/owner/hooks';
+import { useDeletePerk, useMyPerks, useOwnerRedemptions, useSetPerkActive } from '@/features/owner/hooks';
 import type { OwnerPerk } from '@/features/owner/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { useSurfaces } from '@/theme/surfaces';
@@ -26,7 +26,9 @@ export function PerksScreen() {
   const perks = useMyPerks();
   const redemptions = useOwnerRedemptions();
   const remove = useDeletePerk();
+  const setActive = useSetPerkActive();
   const [pending, setPending] = useState<OwnerPerk | null>(null);
+  const [turningOff, setTurningOff] = useState<OwnerPerk | null>(null);
   const [error, setError] = useState<string | null>(null);
   const refreshControl = useListRefresh([perks, redemptions]);
   const rows = perks.data ?? [];
@@ -63,7 +65,7 @@ export function PerksScreen() {
         ListHeaderComponent={
           <View style={{ gap: 8, marginBottom: 18 }}>
             <MarkedHeading mark="Perks" size={28} marked={isWhite} />
-            <Sub>What guests can swap their points for.</Sub>
+            <Sub>Turn a perk off to hide it. Turn it on again whenever you like.</Sub>
             {error ? (
               <Body size={14} color={colors.danger} style={{ marginTop: 6 }}>
                 {error}
@@ -73,14 +75,18 @@ export function PerksScreen() {
         }
         renderItem={({ item, index }) => {
           const edit = () => router.push(`/(owner)/perk/${item.id}`);
+          const kind =
+            item.type === 'DISCOUNT' && item.discountPercent != null
+              ? `${perkTypeLabel[item.type]} · ${item.discountPercent}% off`
+              : perkTypeLabel[item.type];
           return (
             <ListEnter index={index}>
               <PerkCard
                 title={item.title}
-                subtitle={`${item.venue?.name ?? 'Your place'} · ${perkTypeLabel[item.type]}`}
+                subtitle={`${item.venue?.name ?? 'Your place'} · ${kind}`}
                 imageUrl={item.imageUrl}
                 onPress={edit}
-                accessibilityLabel={`${item.title}, ${item.pointsRequired} points. Edit perk`}
+                accessibilityLabel={`${item.title}, ${item.pointsRequired} points, ${item.active ? 'on' : 'off'}. Edit perk`}
                 stats={[
                   { key: 'points', value: item.pointsRequired, label: 'Points', tone: 'accent' },
                   {
@@ -88,13 +94,29 @@ export function PerksScreen() {
                     value: redemptions.isSuccess ? (claimed.get(item.id) ?? 0) : '–',
                     label: 'Claimed',
                   },
-                  item.type === 'DISCOUNT' && item.discountPercent != null
-                    ? { key: 'off', value: `${item.discountPercent}%`, label: 'Off' }
-                    : { key: 'status', value: 'Live', label: 'Status', tone: 'good' },
+                  {
+                    key: 'status',
+                    value: item.active ? 'On' : 'Off',
+                    label: 'Status',
+                    tone: item.active ? 'good' : 'mute',
+                  },
                 ]}
                 right={
                   <ActionMenu
                     label={`${item.title} options`}
+                    status={{
+                      label: item.active ? 'Turn off' : 'Turn on',
+                      onPress: () =>
+                        item.active
+                          ? setTurningOff(item)
+                          : setActive.mutate(
+                              { id: item.id, active: true },
+                              {
+                                onError: (activeError) =>
+                                  setError(getApiErrorMessage(activeError, 'Could not turn this perk on.')),
+                              },
+                            ),
+                    }}
                     onEdit={edit}
                     onDelete={() => setPending(item)}
                     style={{ borderColor: colors.lineStrong }}
@@ -132,6 +154,22 @@ export function PerksScreen() {
             onPress={addPerk}
           />
         }
+      />
+      <ConfirmDialog
+        visible={Boolean(turningOff)}
+        title={`Turn off ${turningOff?.title ?? 'this perk'}?`}
+        detail="Guests will not see it until you turn it on. Codes already given still work."
+        confirmLabel="Turn off"
+        onClose={() => setTurningOff(null)}
+        onConfirm={() => {
+          if (!turningOff) return;
+          const id = turningOff.id;
+          setTurningOff(null);
+          setActive.mutate(
+            { id, active: false },
+            { onError: (activeError) => setError(getApiErrorMessage(activeError, 'Could not turn this perk off.')) },
+          );
+        }}
       />
       <ConfirmDialog
         visible={Boolean(pending)}

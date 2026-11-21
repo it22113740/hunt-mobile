@@ -11,7 +11,9 @@ import {
   ownerVenueSchema,
   type OwnerPerk,
   type OwnerPromotion,
+  scanResultSchema,
   type OwnerRedemption,
+  type ScanResult,
   type OwnerSubmission,
   type OwnerVenue,
   type PerkFormValues,
@@ -96,6 +98,11 @@ export async function deletePerk(id: string) {
   await api.delete(`/perks/${id}`);
 }
 
+export async function setPerkActive(id: string, active: boolean): Promise<OwnerPerk> {
+  const { data } = await api.patch<unknown>(`/perks/${id}/active`, { active });
+  return ownerPerkSchema.parse(data);
+}
+
 export async function fetchOwnerSubmissions(): Promise<OwnerSubmission[]> {
   const { data } = await api.get<unknown>('/submissions/owner');
   return ownerSubmissionListSchema.parse(data);
@@ -115,6 +122,16 @@ export async function fetchOwnerRedemptions(): Promise<OwnerRedemption[]> {
 
 export async function markRedemptionUsed(id: string) {
   await api.patch(`/redemptions/${id}/used`);
+}
+
+export async function lookupCode(code: string): Promise<ScanResult> {
+  const { data } = await api.get<unknown>('/scan', { params: { code } });
+  return scanResultSchema.parse(data);
+}
+
+export async function givePrize(id: string): Promise<ScanResult> {
+  const { data } = await api.post<unknown>(`/scan/prizes/${id}/given`);
+  return scanResultSchema.parse(data);
 }
 
 function promotionBody(values: PromotionFormValues) {
@@ -145,4 +162,12 @@ export async function updatePromotion(id: string, values: PromotionFormValues): 
 
 export async function deletePromotion(id: string) {
   await api.delete(`/promotions/${id}`);
+}
+
+export async function setPromotionActive(
+  id: string,
+  body: { active: boolean; startsAt?: string; endsAt?: string },
+): Promise<OwnerPromotion> {
+  const { data } = await api.patch<unknown>(`/promotions/${id}/active`, body);
+  return ownerPromotionSchema.parse(data);
 }

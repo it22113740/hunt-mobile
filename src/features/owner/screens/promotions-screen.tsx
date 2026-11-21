@@ -10,7 +10,7 @@ import { ListEnter, ScreenEnter } from '@/components/ui/enter';
 import { useTabBarInset } from '@/components/ui/tab-bar';
 import { Body, H1, H2, Hand, Label, Mono, Sub } from '@/components/ui/typography';
 import { AddTile } from '@/features/owner/components/add-tile';
-import { useDeletePromotion, useMyPromotions } from '@/features/owner/hooks';
+import { useDeletePromotion, useMyPromotions, useSetPromotionActive } from '@/features/owner/hooks';
 import type { OwnerPromotion } from '@/features/owner/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { offerTiming, offerWindowLine } from '@/lib/dates';
@@ -29,7 +29,9 @@ export function PromotionsScreen() {
   const { colors } = useSurfaces();
   const promotions = useMyPromotions();
   const remove = useDeletePromotion();
+  const setActive = useSetPromotionActive();
   const [pending, setPending] = useState<OwnerPromotion | null>(null);
+  const [turningOff, setTurningOff] = useState<OwnerPromotion | null>(null);
   const [error, setError] = useState<string | null>(null);
   const refreshControl = useListRefresh([promotions]);
   const rows = promotions.data ?? [];
@@ -62,7 +64,7 @@ export function PromotionsScreen() {
             <H1 size={28} accessibilityRole="header">
               Offers
             </H1>
-            <Sub>Each shop’s offers show only between the start and end you set.</Sub>
+            <Sub>Turn an offer off any time. Turning it back on asks for a new time, and it turns off when that time ends.</Sub>
             {error ? (
               <Body size={14} color={colors.danger} style={{ marginTop: 6 }}>
                 {error}
@@ -76,6 +78,10 @@ export function PromotionsScreen() {
               promotion={item}
               onEdit={() => router.push(`/(owner)/promotion/${item.id}`)}
               onDelete={() => setPending(item)}
+              onTurnOff={() => setTurningOff(item)}
+              onTurnOn={() =>
+                router.push({ pathname: '/(owner)/promotion/[id]', params: { id: item.id, turnOn: '1' } })
+              }
             />
           </ListEnter>
         )}
@@ -87,6 +93,22 @@ export function PromotionsScreen() {
           ) : undefined
         }
         ListEmptyComponent={<NothingPosted onWrite={addOffer} />}
+      />
+      <ConfirmDialog
+        visible={Boolean(turningOff)}
+        title={`Turn off ${turningOff?.title ?? 'this offer'}?`}
+        detail="Guests stop seeing it now. Turning it on later asks for a new time."
+        confirmLabel="Turn off"
+        onClose={() => setTurningOff(null)}
+        onConfirm={() => {
+          if (!turningOff) return;
+          const id = turningOff.id;
+          setTurningOff(null);
+          setActive.mutate(
+            { id, active: false },
+            { onError: (activeError) => setError(getApiErrorMessage(activeError, 'Could not turn this offer off.')) },
+          );
+        }}
       />
       <ConfirmDialog
         visible={Boolean(pending)}
@@ -144,18 +166,24 @@ function PromotionRow({
   promotion,
   onEdit,
   onDelete,
+  onTurnOff,
+  onTurnOn,
 }: {
   promotion: OwnerPromotion;
   onEdit: () => void;
   onDelete: () => void;
+  onTurnOff: () => void;
+  onTurnOn: () => void;
 }) {
   const { isJournal } = useSurfaces();
   const timing = offerTiming(promotion.startsAt, promotion.endsAt);
-  const stamp = {
-    upcoming: { label: 'Upcoming', tone: 'wait' as const },
-    live: { label: 'On now', tone: 'ok' as const },
-    ended: { label: 'Ended', tone: 'used' as const },
-  }[timing];
+  const stamp = !promotion.active
+    ? { label: 'Off', tone: 'used' as const }
+    : {
+        upcoming: { label: 'Upcoming', tone: 'wait' as const },
+        live: { label: 'On now', tone: 'ok' as const },
+        ended: { label: 'Off', tone: 'used' as const },
+      }[timing];
   return (
     <View>
       <Card onPress={onEdit} accessibilityLabel={`${promotion.title}. ${stamp.label}. Edit offer`}>
@@ -197,6 +225,7 @@ function PromotionRow({
       </Card>
       <ActionMenu
         label={`${promotion.title} options`}
+        status={{ label: promotion.active ? 'Turn off' : 'Turn on', onPress: promotion.active ? onTurnOff : onTurnOn }}
         onEdit={onEdit}
         onDelete={onDelete}
         style={{ position: 'absolute', top: 8, right: 12 }}

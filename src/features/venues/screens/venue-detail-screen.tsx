@@ -13,10 +13,11 @@ import { MediaViewer } from '@/components/ui/media-viewer';
 import { StatusBarScrim } from '@/components/ui/status-bar-scrim';
 import { Body, H1, H2, Label, Mono, Sub } from '@/components/ui/typography';
 import { GuestGrid } from '@/features/venues/components/guest-grid';
+import { RedeemedHere } from '@/features/venues/components/redeemed-here';
 import { PerkCarousel } from '@/features/venues/components/perk-carousel';
 import { PromotionList } from '@/features/venues/components/promotion-list';
-import { useVenue, useVenueGallery, useVenuePerks, useVenuePromotions } from '@/features/venues/hooks';
-import type { GalleryItem, Perk } from '@/features/venues/schemas';
+import { useRedeemed, useVenue, useVenueGallery, useVenuePerks, useVenuePromotions } from '@/features/venues/hooks';
+import type { GalleryItem, Perk, PerkShot } from '@/features/venues/schemas';
 import { useMyPoints } from '@/features/wallet/hooks';
 import { useSurfaces } from '@/theme/surfaces';
 import { useIsFocused, useRouter } from 'expo-router';
@@ -41,12 +42,14 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
   const perks = useVenuePerks(venueId);
   const promotions = useVenuePromotions(venueId);
   const gallery = useVenueGallery(venueId);
+  const redeemed = useRedeemed(venueId);
   const balance = useMyPoints();
   const venue = venueQuery.venue;
   const [viewer, setViewer] = useState<GalleryItem | null>(null);
+  const [plate, setPlate] = useState<PerkShot | null>(null);
   const [photoAspect, setPhotoAspect] = useState(PHOTO_ASPECT);
   const focused = useIsFocused();
-  const refreshControl = useListRefresh([venueQuery, perks, promotions, gallery]);
+  const refreshControl = useListRefresh([venueQuery, perks, promotions, gallery, redeemed]);
   const mine = balance.data?.byVenue.find((item) => item.venueId === venueId)?.points ?? 0;
 
   if (venueQuery.isPending) return <ScreenState loading skeleton="venue" title="Loading venue" />;
@@ -173,6 +176,15 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
             />
           </View>
 
+          <RedeemedHere
+            board={redeemed.data}
+            pending={redeemed.isPending}
+            error={redeemed.isError}
+            onRetry={() => void redeemed.refetch()}
+            onOpen={setPlate}
+            onSeeAll={() => router.push({ pathname: '/(user)/redeemed/[id]', params: { id: venueId } })}
+          />
+
           <View style={{ gap: 12 }}>
             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' }}>
               <H2>From guests</H2>
@@ -194,7 +206,7 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
       </ScrollView>
       <StatusBarScrim />
       {focused ? <StatusBar style="dark" animated /> : null}
-      <MediaViewer url={viewer?.mediaUrl ?? null} kind={viewer?.type ?? null} onClose={() => setViewer(null)} />
+      <MediaViewer url={viewer?.mediaUrl ?? plate?.mediaUrl ?? null} kind={viewer?.type ?? (plate ? 'PHOTO' : null)} onClose={() => { setViewer(null); setPlate(null); }} />
       <View
         style={{
           position: 'absolute',

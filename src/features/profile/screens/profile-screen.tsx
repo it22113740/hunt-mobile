@@ -1,12 +1,14 @@
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useListRefresh } from '@/components/list-refresh';
 import { EmptyState } from '@/components/empty-state';
-import { SkeletonScreen } from '@/components/skeleton';
+import { SkeletonBlock, SkeletonScreen } from '@/components/skeleton';
 import { DashRule, Doodle } from '@/components/ui/decor';
 import { ScreenEnter } from '@/components/ui/enter';
 import { BackHeader } from '@/components/ui/screen-header';
 import { Body } from '@/components/ui/typography';
 import { AlertsCard } from '@/features/notifications/components/alerts-card';
+import { GuestStanding } from '@/features/perk-hunters/components/guest-standing';
+import { usePerkHunterSummary } from '@/features/perk-hunters/hooks';
 import { AvatarPicker } from '@/features/profile/components/avatar-picker';
 import { ChangePasswordForm } from '@/features/profile/components/change-password-form';
 import { ProfileForm } from '@/features/profile/components/profile-form';
@@ -23,8 +25,10 @@ export function ProfileScreen() {
   const insets = useSafeAreaInsets();
   const { colors, isJournal, isWhite } = useSurfaces();
   const profile = useProfile();
+  const isGuest = profile.data?.role === 'USER';
+  const standing = usePerkHunterSummary(isGuest);
   const logout = useAuthStore((state) => state.logout);
-  const refreshControl = useListRefresh([profile]);
+  const refreshControl = useListRefresh(isGuest ? [profile, standing] : [profile]);
   const [confirmingLogout, setConfirmingLogout] = useState(false);
 
   const confirmLogout = () => {
@@ -65,7 +69,24 @@ export function ProfileScreen() {
               </>
             ) : null}
             <BackHeader label="Profile" />
-            <AvatarPicker profile={profile.data} />
+            <AvatarPicker profile={profile.data} levelName={isGuest ? standing.data?.level.name : null} />
+            {isGuest ? (
+              standing.isPending ? (
+                <View style={{ gap: 12 }}>
+                  <SkeletonBlock height={120} style={{ marginBottom: 0 }} />
+                  <SkeletonBlock height={88} style={{ marginBottom: 0 }} />
+                </View>
+              ) : standing.isError || !standing.data ? (
+                <EmptyState
+                  title="Couldn’t load your level"
+                  detail="Your profile is fine. Perk Hunters didn’t load."
+                  action="Try again"
+                  onPress={() => void standing.refetch()}
+                />
+              ) : (
+                <GuestStanding summary={standing.data} />
+              )
+            ) : null}
             <ProfileForm profile={profile.data} />
             <DashRule width={isJournal ? 1.5 : 1} />
             <ChangePasswordForm hasPassword={profile.data.hasPassword} />

@@ -28,6 +28,7 @@ export const redemptionSchema = z.object({
       name: z.string(),
     }),
   }),
+  shot: z.object({ mediaUrl: z.string() }).nullish(),
 });
 
 export const redemptionListSchema = z.array(redemptionSchema);

@@ -7,6 +7,8 @@ export const queryKeys = {
   venuesNear: (lat: number, lng: number) => ['venues', 'near', lat, lng] as const,
   venuePerks: (venueId: string) => ['perks', 'venue', venueId] as const,
   venueGallery: (venueId: string) => ['submissions', 'venue', venueId, 'approved'] as const,
+  redeemed: (venueId: string) => ['venues', venueId, 'redeemed'] as const,
+  redeemedShots: (venueId: string, filter: string) => ['venues', venueId, 'redeemed', 'shots', filter] as const,
   mySubmissions: ['submissions', 'mine'] as const,
   myPoints: ['users', 'me', 'points'] as const,
   myRedemptions: ['redemptions', 'mine'] as const,
@@ -17,4 +19,6 @@ export const queryKeys = {
   venuePromotions: (venueId: string) => ['promotions', 'venue', venueId] as const,
   ownerSubmissions: ['submissions', 'owner'] as const,
   ownerRedemptions: ['redemptions', 'owner'] as const,
+  scan: (code: string) => ['scan', code] as const,
+  perkHunters: ['perk-hunters'] as const,
 };

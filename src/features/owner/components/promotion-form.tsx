@@ -185,7 +185,9 @@ export function PromotionForm({ promotion, venues, onSaved }: PromotionFormProps
         <View style={{ flexDirection: 'row', gap: 8 }}>
           <Info color={colors.mute} size={16} strokeWidth={1.8} style={{ marginTop: 1 }} />
           <Body size={13} color={colors.mute} style={{ flex: 1 }}>
-            {`Guests see this on ${venueName}’s page and in Offers only while this window is open.`}
+            {promotion && !promotion.active
+              ? 'This offer is off. Saving here does not turn it on. Use Turn on and set a new time.'
+              : `Guests see this on ${venueName}’s page and in Offers only while this window is open. It turns off when the time ends.`}
           </Body>
         </View>
       </ScrollView>

@@ -2,14 +2,16 @@ import { ScreenState } from '@/components/screen-state';
 import { ScreenEnter } from '@/components/ui/enter';
 import { FormHeader } from '@/features/owner/components/form-header';
 import { PromotionForm } from '@/features/owner/components/promotion-form';
+import { TurnOnOffer } from '@/features/owner/components/turn-on-offer';
 import { useMyPromotions, useMyVenues } from '@/features/owner/hooks';
 import { useRouter } from 'expo-router';
 
 type PromotionEditScreenProps = {
   promotionId?: string;
+  turnOn?: boolean;
 };
 
-export function PromotionEditScreen({ promotionId }: PromotionEditScreenProps) {
+export function PromotionEditScreen({ promotionId, turnOn = false }: PromotionEditScreenProps) {
   const router = useRouter();
   const promotions = useMyPromotions();
   const venues = useMyVenues();
@@ -45,8 +47,12 @@ export function PromotionEditScreen({ promotionId }: PromotionEditScreenProps) {
 
   return (
     <ScreenEnter className="flex-1 bg-hunt-paper">
-      <FormHeader title={promotion ? 'Edit offer' : 'New offer'} />
-      <PromotionForm promotion={promotion} venues={venues.data ?? []} onSaved={() => router.back()} />
+      <FormHeader title={turnOn && promotion ? 'Turn on' : promotion ? 'Edit offer' : 'New offer'} />
+      {turnOn && promotion ? (
+        <TurnOnOffer promotion={promotion} onSaved={() => router.back()} />
+      ) : (
+        <PromotionForm promotion={promotion} venues={venues.data ?? []} onSaved={() => router.back()} />
+      )}
     </ScreenEnter>
   );
 }

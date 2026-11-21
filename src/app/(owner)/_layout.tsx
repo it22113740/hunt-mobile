@@ -23,6 +23,8 @@ export default function OwnerLayout() {
       <Stack.Screen name="perk/[id]" />
       <Stack.Screen name="promotion/new" />
       <Stack.Screen name="promotion/[id]" />
+      <Stack.Screen name="scan" />
+      <Stack.Screen name="scan-result" />
     </Stack>
   );
 }

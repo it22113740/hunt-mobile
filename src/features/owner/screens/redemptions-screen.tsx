@@ -13,7 +13,8 @@ import type { OwnerRedemption } from '@/features/owner/schemas';
 import { getApiErrorMessage } from '@/lib/api-error';
 import { monthDay } from '@/lib/dates';
 import { useSurfaces } from '@/theme/surfaces';
-import { Search } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
+import { ScanLine, Search } from 'lucide-react-native';
 import { useMemo, useState, type ReactNode } from 'react';
 import { FlatList, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,6 +28,7 @@ const filters: { value: CodeFilter; label: string }[] = [
 ];
 
 export function RedemptionsScreen() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const tabInset = useTabBarInset();
   const { colors, isWhite } = useSurfaces();
@@ -72,8 +74,13 @@ export function RedemptionsScreen() {
           <View style={{ gap: 18, marginBottom: 18 }}>
             <View style={{ gap: 8 }}>
               <MarkedHeading mark="Codes" size={28} marked={isWhite} />
-              <Sub>A guest shows you a code. Find it here and mark it used.</Sub>
+              <Sub>A guest shows you a code. Scan it, or look it up.</Sub>
             </View>
+            <Button
+              label="Scan code"
+              leftIcon={<ScanLine color={colors.onAccent} size={18} strokeWidth={1.8} />}
+              onPress={() => router.push('/(owner)/scan')}
+            />
             <CodeSearch value={query} onChange={setQuery} />
             <Segmented options={filters} value={filter} onChange={setFilter} />
             {error ? (

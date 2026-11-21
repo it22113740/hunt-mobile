@@ -93,7 +93,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Hunt uses your photos so you can submit a visit.",
-          "cameraPermission": "Hunt uses your camera to capture a visit."
+          "cameraPermission": "Hunt uses your camera to capture a visit and to scan a guest's code."
         }
       ],
       [
@@ -106,8 +106,29 @@
         }
       ],
       "expo-video",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Hunt uses your camera to capture a visit and to scan a guest's code.",
+          "recordAudioAndroid": false
+        }
+      ],
       "@maplibre/maplibre-react-native",
-      "@react-native-community/datetimepicker"
+      "@react-native-community/datetimepicker",
+      "expo-build-properties",
+      [
+        "react-native-share",
+        {
+          "ios": ["instagram", "instagram-stories", "whatsapp", "tg", "twitter", "fb", "fb-stories"],
+          "android": [
+            "com.instagram.android",
+            "com.whatsapp",
+            "com.facebook.katana",
+            "org.telegram.messenger",
+            "com.snapchat.android"
+          ]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

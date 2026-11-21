@@ -1,7 +1,9 @@
 import { api } from '@/api/client';
 import {
   gallerySchema,
+  perkShotPageSchema,
   perkListSchema,
+  redeemedBoardSchema,
   promotionFeedSchema,
   promotionListSchema,
   venueListSchema,
@@ -40,4 +42,18 @@ export async function fetchVenuePromotions(venueId: string): Promise<Promotion[]
 export async function fetchApprovedMedia(venueId: string): Promise<GalleryItem[]> {
   const { data } = await api.get<unknown>(`/submissions/venue/${venueId}/approved-media`);
   return gallerySchema.parse(data);
+}
+
+export async function fetchRedeemed(venueId: string) {
+  const { data } = await api.get<unknown>(`/venues/${venueId}/redeemed`);
+  return redeemedBoardSchema.parse(data);
+}
+
+export async function fetchRedeemedShots(venueId: string, filter: string, cursor?: string) {
+  const params: { perkId?: string; month?: string; cursor?: string } = {};
+  if (filter === 'month') params.month = 'this';
+  else if (filter.startsWith('perk:')) params.perkId = filter.slice(5);
+  if (cursor) params.cursor = cursor;
+  const { data } = await api.get<unknown>(`/venues/${venueId}/redeemed/shots`, { params });
+  return perkShotPageSchema.parse(data);
 }

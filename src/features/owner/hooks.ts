@@ -11,7 +11,11 @@ import {
   fetchMyPromotions,
   fetchMyVenues,
   fetchOwnerRedemptions,
+  setPerkActive,
+  setPromotionActive,
   fetchOwnerSubmissions,
+  givePrize,
+  lookupCode,
   markRedemptionUsed,
   reviewSubmission,
   updatePerk,
@@ -79,6 +83,13 @@ export function useDeletePerk() {
   });
 }
 
+export function useSetPerkActive() {
+  return useMutation({
+    mutationFn: ({ id, active }: { id: string; active: boolean }) => setPerkActive(id, active),
+    onSuccess: refreshPerks,
+  });
+}
+
 async function refreshPromotions() {
   await queryClient.invalidateQueries({ queryKey: queryKeys.myPromotions });
   await queryClient.invalidateQueries({ queryKey: queryKeys.promotionFeed });
@@ -100,6 +111,21 @@ export function useSavePromotion(promotionId?: string) {
 export function useDeletePromotion() {
   return useMutation({
     mutationFn: deletePromotion,
+    onSuccess: refreshPromotions,
+  });
+}
+
+export function useSetPromotionActive() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      ...body
+    }: {
+      id: string;
+      active: boolean;
+      startsAt?: string;
+      endsAt?: string;
+    }) => setPromotionActive(id, body),
     onSuccess: refreshPromotions,
   });
 }
@@ -127,7 +153,28 @@ export function useMarkRedemptionUsed() {
   return useMutation({
     mutationFn: markRedemptionUsed,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: queryKeys.ownerRedemptions });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.ownerRedemptions }),
+        queryClient.invalidateQueries({ queryKey: ['scan'] }),
+      ]);
+    },
+  });
+}
+
+export function useLookupCode(code: string) {
+  return useQuery({
+    queryKey: queryKeys.scan(code),
+    queryFn: () => lookupCode(code),
+    enabled: code.trim().length >= 2,
+  });
+}
+
+export function useGivePrize() {
+  return useMutation({
+    mutationFn: givePrize,
+    onSuccess: async (result) => {
+      queryClient.setQueryData(queryKeys.scan(result.code), result);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.perkHunters });
     },
   });
 }

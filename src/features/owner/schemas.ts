@@ -49,6 +49,7 @@ export const ownerPerkSchema = z.object({
   discountPercent: z.number().nullish(),
   promoCodePrefix: z.string().nullish(),
   imageUrl: z.string().nullish(),
+  active: z.boolean().default(true),
   venue: z
     .object({
       id: z.string(),
@@ -129,6 +130,41 @@ export const ownerRedemptionListSchema = z.array(ownerRedemptionSchema);
 
 export type OwnerRedemption = z.infer<typeof ownerRedemptionSchema>;
 
+const perkScanSchema = z.object({
+  kind: z.literal('perk'),
+  id: z.string(),
+  code: z.string(),
+  status: z.enum(['ISSUED', 'USED']),
+  mine: z.boolean(),
+  title: z.string(),
+  place: z.string(),
+  guest: z.string(),
+  pointsSpent: z.number(),
+  redeemedAt: z.string(),
+  usedAt: z.string().nullable(),
+});
+
+const prizeScanSchema = z.object({
+  kind: z.literal('prize'),
+  id: z.string(),
+  code: z.string(),
+  status: z.enum(['READY', 'GIVEN', 'EXPIRED']),
+  mine: z.boolean(),
+  title: z.string().nullable(),
+  partner: z.string().nullable(),
+  area: z.string().nullable(),
+  monthName: z.string(),
+  year: z.number(),
+  guest: z.string(),
+  perks: z.number(),
+  validUntilLabel: z.string(),
+  givenAt: z.string().nullable(),
+});
+
+export const scanResultSchema = z.discriminatedUnion('kind', [perkScanSchema, prizeScanSchema]);
+
+export type ScanResult = z.infer<typeof scanResultSchema>;
+
 export const ownerPromotionSchema = z.object({
   id: z.string(),
   venueId: z.string(),
@@ -138,6 +174,7 @@ export const ownerPromotionSchema = z.object({
   startsAt: z.string(),
   endsAt: z.string(),
   discountPercent: z.number().nullish(),
+  active: z.boolean().default(true),
   venue: z
     .object({
       id: z.string(),

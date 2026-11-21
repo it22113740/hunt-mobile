@@ -162,7 +162,13 @@ export function WalletScreen() {
           </View>
         ) : null}
       </ScrollView>
-      <PromoModal redemption={issued} onClose={() => setIssued(null)} />
+      <PromoModal
+        redemption={issued}
+        onClose={() => setIssued(null)}
+        onShot={(redemptionId, mediaUrl) =>
+          setIssued((current) => (current?.id === redemptionId ? { ...current, shot: { mediaUrl } } : current))
+        }
+      />
     </ScreenEnter>
   );
 }

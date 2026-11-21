@@ -12,9 +12,11 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 
 type AvatarPickerProps = {
   profile: Profile;
+  /** Lifetime level name for a guest. Owners keep the business stamp. */
+  levelName?: string | null;
 };
 
-export function AvatarPicker({ profile }: AvatarPickerProps) {
+export function AvatarPicker({ profile, levelName }: AvatarPickerProps) {
   const upload = useUploadAvatar();
   const { colors, surfaces } = useSurfaces();
   const [error, setError] = useState<string | null>(null);
@@ -89,7 +91,11 @@ export function AvatarPicker({ profile }: AvatarPickerProps) {
             {displayName}
           </H1>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-            <Stamp label={profile.role === 'OWNER' ? 'Business' : 'Explorer'} tone="wait" />
+            {profile.role === 'OWNER' ? (
+              <Stamp label="Business" tone="wait" />
+            ) : levelName ? (
+              <Stamp label={levelName} tone="wait" />
+            ) : null}
             {profile.googleVerified ? <Stamp label="Google verified" tone="ok" /> : null}
           </View>
         </View>

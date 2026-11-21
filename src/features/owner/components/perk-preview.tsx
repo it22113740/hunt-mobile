@@ -18,7 +18,7 @@ type PerkStat = {
   key: string;
   value: string | number;
   label: string;
-  tone?: 'accent' | 'good';
+  tone?: 'accent' | 'good' | 'mute';
 };
 
 /** Perk card: 64px thumb, title, `Venue · Type`, and a dashed mono stats row. */
@@ -88,7 +88,14 @@ export function PerkCard({
                 style={{
                   fontFamily: 'IBMPlexMono_500Medium',
                   fontSize: 16,
-                  color: stat.tone === 'accent' ? colors.accentDeep : stat.tone === 'good' ? colors.good : colors.ink,
+                  color:
+                    stat.tone === 'accent'
+                      ? colors.accentDeep
+                      : stat.tone === 'good'
+                        ? colors.good
+                        : stat.tone === 'mute'
+                          ? colors.mute
+                          : colors.ink,
                 }}>
                 {stat.value}
               </Text>
