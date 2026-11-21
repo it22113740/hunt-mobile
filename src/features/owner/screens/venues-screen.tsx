@@ -38,7 +38,7 @@ export function VenuesScreen() {
   const codes = redemptions.data?.length ?? 0;
   const activePerks = perks.data?.length ?? 0;
 
-  if (venues.isPending) return <ScreenState loading title="Loading your places" />;
+  if (venues.isPending) return <ScreenState loading skeleton="places" title="Loading your places" />;
   if (venues.isError) {
     return (
       <ScreenState

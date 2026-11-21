@@ -1,7 +1,7 @@
 import { CachedImage } from '@/components/cached-image';
 import { useListRefresh } from '@/components/list-refresh';
 import { ScreenState } from '@/components/screen-state';
-import { SkeletonBlock } from '@/components/skeleton';
+import { GuestGridSkeleton, PerkRowSkeleton } from '@/components/skeleton';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DashRule, Doodle, Placeholder, Stamp } from '@/components/ui/decor';
@@ -49,7 +49,7 @@ export function VenueDetailScreen({ venueId }: VenueDetailScreenProps) {
   const refreshControl = useListRefresh([venueQuery, perks, promotions, gallery]);
   const mine = balance.data?.byVenue.find((item) => item.venueId === venueId)?.points ?? 0;
 
-  if (venueQuery.isPending) return <ScreenState loading title="Loading venue" />;
+  if (venueQuery.isPending) return <ScreenState loading skeleton="venue" title="Loading venue" />;
 
   if (venueQuery.isError || !venue) {
     return (
@@ -247,7 +247,7 @@ function PerkBlock({
   onRetry: () => void;
 }) {
   const { colors } = useSurfaces();
-  if (pending) return <SkeletonBlock height={130} radius={10} />;
+  if (pending) return <PerkRowSkeleton />;
   if (error) {
     return (
       <Pressable accessibilityRole="button" onPress={onRetry}>
@@ -277,7 +277,7 @@ function GuestBlock({
   onCapture: () => void;
 }) {
   const { colors } = useSurfaces();
-  if (pending) return <SkeletonBlock height={112} radius={6} />;
+  if (pending) return <GuestGridSkeleton />;
   if (error) {
     return (
       <Pressable accessibilityRole="button" onPress={onRetry}>

@@ -15,7 +15,7 @@ export default function OwnerTabsLayout() {
     if (incomplete) router.replace('/(owner)/onboarding');
   }, [incomplete, router]);
 
-  if (profile.isPending) return <ScreenState loading title="Loading your places" />;
+  if (profile.isPending) return <ScreenState loading skeleton="places" title="Loading your places" />;
   if (profile.isError) {
     return (
       <ScreenState
@@ -25,7 +25,7 @@ export default function OwnerTabsLayout() {
       />
     );
   }
-  if (incomplete) return <ScreenState loading title="Setting up" />;
+  if (incomplete) return <ScreenState loading skeleton="setup" title="Setting up" />;
 
   return (
     <Tabs

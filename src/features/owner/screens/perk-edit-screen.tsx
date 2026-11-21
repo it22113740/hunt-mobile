@@ -16,7 +16,7 @@ export function PerkEditScreen({ perkId }: PerkEditScreenProps) {
   const perk = perks.data?.find((item) => item.id === perkId) ?? null;
   const waiting = perks.isPending || venues.isPending;
 
-  if (waiting) return <ScreenState loading skeleton="ticket" title="Loading perk" />;
+  if (waiting) return <ScreenState loading skeleton="perk-form" title="Loading perk" />;
   if (perks.isError || venues.isError) {
     return (
       <ScreenState

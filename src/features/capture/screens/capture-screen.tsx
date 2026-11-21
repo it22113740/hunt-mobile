@@ -133,7 +133,7 @@ export function CaptureScreen() {
   const waitingForPin = Boolean(paramVenueId) && pinnedQuery.isPending && !pinned;
   const locating =
     waitingForPin || (!pinned && (location.isPending || (Boolean(location.data) && nearby.isPending)));
-  if (locating) return <ScreenState loading title="Finding places near you" />;
+  if (locating) return <ScreenState loading skeleton="capture" title="Finding places near you" />;
   if (nearby.isError && choices.length === 0) {
     return (
       <ScreenState

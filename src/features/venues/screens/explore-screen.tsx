@@ -122,7 +122,7 @@ export function ExploreScreen() {
   };
 
   if (explore.isPending) {
-    return <ScreenState loading title="Finding places" detail="Looking for restaurants and bars around you." />;
+    return <ScreenState loading skeleton="explore" title="Finding places" />;
   }
 
   if (explore.isError) {

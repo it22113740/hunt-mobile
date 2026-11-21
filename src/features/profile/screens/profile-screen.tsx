@@ -1,7 +1,7 @@
 import { ConfirmDialog } from '@/components/confirm-dialog';
 import { useListRefresh } from '@/components/list-refresh';
 import { EmptyState } from '@/components/empty-state';
-import { SkeletonBlock } from '@/components/skeleton';
+import { SkeletonScreen } from '@/components/skeleton';
 import { DashRule, Doodle } from '@/components/ui/decor';
 import { ScreenEnter } from '@/components/ui/enter';
 import { BackHeader } from '@/components/ui/screen-header';
@@ -34,25 +34,10 @@ export function ProfileScreen() {
     });
   };
 
+  if (profile.isPending) return <SkeletonScreen label="Loading profile" shape="profile" />;
+
   return (
     <ScreenEnter className="flex-1 bg-hunt-paper" style={{ paddingTop: insets.top }}>
-      {profile.data ? null : (
-        <View style={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: 6 }}>
-          <BackHeader label="Profile" />
-        </View>
-      )}
-
-      {profile.isPending ? (
-        <View style={{ paddingHorizontal: 20, paddingTop: 22, gap: 16 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-            <SkeletonBlock height={84} width={84} radius={42} />
-            <SkeletonBlock height={28} width="46%" />
-          </View>
-          <SkeletonBlock height={48} />
-          <SkeletonBlock height={48} />
-        </View>
-      ) : null}
-
       {profile.isError ? (
         <View style={{ flex: 1, justifyContent: 'center' }}>
           <EmptyState

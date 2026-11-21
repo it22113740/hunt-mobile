@@ -16,7 +16,7 @@ export function PromotionEditScreen({ promotionId }: PromotionEditScreenProps) {
   const promotion = promotions.data?.find((item) => item.id === promotionId) ?? null;
   const waiting = promotions.isPending || venues.isPending;
 
-  if (waiting) return <ScreenState loading skeleton="ticket" title="Loading promotion" />;
+  if (waiting) return <ScreenState loading skeleton="offer-form" title="Loading promotion" />;
   if (promotions.isError || venues.isError) {
     return (
       <ScreenState

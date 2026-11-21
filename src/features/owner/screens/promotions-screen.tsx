@@ -34,7 +34,7 @@ export function PromotionsScreen() {
   const refreshControl = useListRefresh([promotions]);
   const rows = promotions.data ?? [];
 
-  if (promotions.isPending) return <ScreenState loading skeleton="ticket" title="Loading promotions" />;
+  if (promotions.isPending) return <ScreenState loading skeleton="owner-offers" title="Loading promotions" />;
   if (promotions.isError) {
     return (
       <ScreenState

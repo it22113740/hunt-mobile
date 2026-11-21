@@ -41,7 +41,7 @@ export function ReviewScreen() {
   const [error, setError] = useState<string | null>(null);
   const refreshControl = useListRefresh([submissions, venues]);
 
-  if (submissions.isPending) return <ScreenState loading skeleton="activity" title="Loading visits" />;
+  if (submissions.isPending) return <ScreenState loading skeleton="review" title="Loading visits" />;
   if (submissions.isError) {
     return (
       <ScreenState

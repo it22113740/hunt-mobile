@@ -46,7 +46,7 @@ export function RedemptionsScreen() {
     });
   }, [filter, query, redemptions.data]);
 
-  if (redemptions.isPending) return <ScreenState loading skeleton="ticket" title="Loading codes" />;
+  if (redemptions.isPending) return <ScreenState loading skeleton="codes" title="Loading codes" />;
   if (redemptions.isError) {
     return (
       <ScreenState

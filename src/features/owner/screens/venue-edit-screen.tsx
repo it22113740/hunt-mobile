@@ -17,7 +17,7 @@ export function VenueEditScreen({ venueId }: VenueEditScreenProps) {
   const venue = venues.data?.find((item) => item.id === venueId) ?? null;
   const waiting = venues.isPending || (!venueId && location.isPending);
 
-  if (waiting) return <ScreenState loading title="Loading place" />;
+  if (waiting) return <ScreenState loading skeleton="place-form" title="Loading place" />;
   if (venues.isError) {
     return <ScreenState title="Couldn’t load this place" action="Try again" onPress={() => void venues.refetch()} />;
   }

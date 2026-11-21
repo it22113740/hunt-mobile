@@ -37,7 +37,7 @@ export function PerksScreen() {
     return counts;
   }, [redemptions.data]);
 
-  if (perks.isPending) return <ScreenState loading skeleton="ticket" title="Loading perks" />;
+  if (perks.isPending) return <ScreenState loading skeleton="perks" title="Loading perks" />;
   if (perks.isError) {
     return (
       <ScreenState

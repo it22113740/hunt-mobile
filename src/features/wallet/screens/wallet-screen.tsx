@@ -32,7 +32,7 @@ export function WalletScreen() {
   const [error, setError] = useState<string | null>(null);
   const refreshControl = useListRefresh([points, history]);
 
-  if (points.isPending || history.isPending) return <ScreenState loading skeleton="ticket" title="Loading your points" />;
+  if (points.isPending || history.isPending) return <ScreenState loading skeleton="wallet" title="Loading your points" />;
 
   if (points.isError || history.isError) {
     return (

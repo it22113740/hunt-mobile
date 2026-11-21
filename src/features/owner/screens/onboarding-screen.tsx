@@ -46,7 +46,7 @@ export function OnboardingScreen() {
   };
 
   if (profile.isPending || venues.isPending || perks.isPending || screen === null) {
-    return <ScreenState loading title="Setting up" />;
+    return <ScreenState loading skeleton="setup" title="Setting up" />;
   }
   if (profile.isError || venues.isError || perks.isError) {
     return (
@@ -62,7 +62,7 @@ export function OnboardingScreen() {
     );
   }
   if (screen === 'place' && !hasVenue && location.isPending) {
-    return <ScreenState loading title="Setting up" />;
+    return <ScreenState loading skeleton="place-form" title="Setting up" />;
   }
 
   if (screen === 'welcome') {

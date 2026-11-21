@@ -1,5 +1,5 @@
 import { CachedImage } from '@/components/cached-image';
-import { SkeletonBlock } from '@/components/skeleton';
+import { OfferLineSkeleton } from '@/components/skeleton';
 import { Card } from '@/components/ui/card';
 import { Body, Sub } from '@/components/ui/typography';
 import type { Promotion } from '@/features/venues/schemas';
@@ -19,7 +19,7 @@ export function PromotionList({
   onRetry: () => void;
 }) {
   const { colors, isJournal } = useSurfaces();
-  if (pending) return <SkeletonBlock height={72} radius={10} />;
+  if (pending) return <OfferLineSkeleton />;
   if (error) {
     return (
       <Pressable accessibilityRole="button" onPress={onRetry}>
